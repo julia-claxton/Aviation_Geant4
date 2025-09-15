@@ -57,6 +57,7 @@ RunAction::RunAction():
   G4UserRunAction(),
   fRunActionMessenger(),
   fEnergyDepositionFileName()
+  
 {
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
@@ -64,21 +65,25 @@ RunAction::RunAction():
 
   fRunActionMessenger = new RunActionMessenger(this); 
 
-  // Initialize energy deposition histogram
-  fEnergyDepositionHistogram = new myHistogram(); // Defaults to 0-999 km in 1 km bins
+  // Set up energy spectrum histograms
+  G4cout << fNumberEnergyBins << " bins in spectrum" << G4endl;
 
-  // Initialize backscatter recording structures
-  std::vector<std::string> fBackscatteredParticleNames;
-  std::vector<double> fBackscatteredTrackWeights;
-  std::vector<double> fBackscatteredEnergieskeV;
-  std::vector<double> fBackscatteredPitchAnglesDeg;
-  std::vector<std::array<double,3>> fBackscatterDirections;
-  std::vector<std::array<double,3>> fBackscatterPositions;
+  G4double energyMinMeV = 1e-3; // TEMP
+  G4double energyMaxMeV = 1e3; // TEMP
+
+  // TODO logspace
+  std::vector<G4double> energyBinEdges = linspace(energyMinMeV, energyMaxMeV, fNumberEnergyBins + 1); 
+
+  // todo move fNumberEnergyBins inside here, or move min/max out to class def in .hh
+  // todo construct the full 2d histogram (x3 for each species w/ stopping power data)
+  // todo get those full histograms into global runaction scope so steppingaction can add to it
+
+  throw;
+  
 }
 
 RunAction::~RunAction()
 {
-  delete fEnergyDepositionHistogram;
   delete fRunActionMessenger;
 }
 
@@ -148,6 +153,7 @@ void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef)
 
 void RunAction::EndOfRunAction(const G4Run*)
 {
+  /*
   // Get thread ID to see if we are main thread or not
   int threadID = G4Threading::G4GetThreadId();
 
@@ -250,8 +256,19 @@ void RunAction::EndOfRunAction(const G4Run*)
   }
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
   backscatterFile.close();
+  */
 
   G4cout << "Done" << G4endl;
+}
+
+std::vector<G4double> RunAction::linspace(G4double start, G4double stop, int n){
+  std::vector<G4double> result;
+  G4double stepSize = (stop - start) / (n-1);
+
+  for(int i = 0; i < n; i++){
+    result.push_back(start + (i * stepSize));
+  }
+  return result;
 }
 
 std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransportation(const G4ParticleDefinition* particleDef, bool reportError)
@@ -273,42 +290,4 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
   }
   
   return std::make_pair( transport, coupledTransport );
-}
-
-
-void RunAction::writeBackscatterToFile(std::string filename)
-{
-  // Exit out if no backscatter
-  if(fBackscatteredParticleNames.empty()){return;}
-
-  // Make sure we don't have missing data for any backscatter
-  int n = fBackscatteredParticleNames.size();
-  if((fBackscatteredEnergieskeV.size() != n) || ((fBackscatteredTrackWeights.size() != n)) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n) || (fBackscatteredPitchAnglesDeg.size() != n))
-  {
-    G4cout << "**ERROR: Incomplete backscatter data! You shouldn't see this." << G4endl;
-    throw;
-  }
-
-  // Write header
-  std::ofstream dataFile;
-  dataFile.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-  dataFile << "particle_name,particle_weight,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
-  for(int i = 0; i < n; i++)
-  {
-    dataFile << 
-      fBackscatteredParticleNames.at(i)  << "," <<
-      fBackscatteredTrackWeights.at(i)   << "," <<
-      fBackscatteredEnergieskeV.at(i)    << "," <<
-      fBackscatteredPitchAnglesDeg.at(i) << "," <<
-
-      fBackscatterDirections.at(i)[0] << "," <<
-      fBackscatterDirections.at(i)[1] << "," <<
-      fBackscatterDirections.at(i)[2] << "," <<
-
-      fBackscatterPositions.at(i)[0] << "," <<
-      fBackscatterPositions.at(i)[1] << "," <<
-      fBackscatterPositions.at(i)[2] << "\n"
-    ;
-  }
-  dataFile.close();
 }

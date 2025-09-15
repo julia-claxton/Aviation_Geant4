@@ -55,7 +55,7 @@ class RunAction : public G4UserRunAction
     void SetEnergyDepositionFileName(G4String name){fEnergyDepositionFileName=name;};
     void ChangeLooperParameters(const G4ParticleDefinition* particleDef ); // Helper method to change the Transportation's 'looper' parameters 
     std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true); // Helper method to find the Transportation process for a particle type 
-    void writeBackscatterToFile(std::string filename);
+    std::vector<G4double> linspace(G4double start, G4double stop, int n);
 
   public:
     void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
@@ -66,14 +66,8 @@ class RunAction : public G4UserRunAction
     G4double GetImportantEnergy(){ return fImportantEnergy; } 
 
   public:
-    myHistogram* fEnergyDepositionHistogram; 
-    std::vector<std::string> fBackscatteredParticleNames;
-    std::vector<double> fBackscatteredTrackWeights;
-    std::vector<double> fBackscatteredEnergieskeV;
-    std::vector<double> fBackscatteredPitchAnglesDeg;
-    std::vector<std::array<double,3>> fBackscatterDirections;
-    std::vector<std::array<double,3>> fBackscatterPositions;
-
+    G4double fNumberEnergyBins = 100;
+  
   private:
     RunActionMessenger* fRunActionMessenger;
     G4String fEnergyDepositionFileName;

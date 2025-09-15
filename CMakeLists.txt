@@ -36,21 +36,21 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/fast-cpp-csv-parser/*.h)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(G4EPP atmosphericEPP_main.cc ${sources} ${headers})
-target_link_libraries(G4EPP ${Geant4_LIBRARIES})
+add_executable(aviation_G4EPP atmosphericEPP_main.cc ${sources} ${headers})
+target_link_libraries(aviation_G4EPP ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build the executable. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(G4EPP_FILES
+set(aviation_G4EPP_FILES
   run_beam.mac
   EDIT_THIS_FILE.mac
   MSISE00_atmosphere.csv
   )
 
-foreach(_script ${G4EPP_FILES})
+foreach(_script ${aviation_G4EPP_FILES})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
@@ -61,7 +61,7 @@ endforeach()
 #----------------------------------------------------------------------------
 # Create results subdirectory
 add_custom_command(
-    TARGET G4EPP POST_BUILD
+    TARGET aviation_G4EPP POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/results
 )
 
@@ -73,6 +73,6 @@ add_custom_target(B1 DEPENDS main)
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS G4EPP DESTINATION bin)
+install(TARGETS aviation_G4EPP DESTINATION bin)
 
 

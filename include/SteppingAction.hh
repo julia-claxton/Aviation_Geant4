@@ -64,7 +64,6 @@ class SteppingAction : public G4UserSteppingAction
   private:
     EventAction*             fEventAction;
     RunAction*               fRunAction;
-    G4double                 fEnergyThreshold_keV;
     G4String                 fBackscatterFilename;
     SteppingActionMessenger* fSteppingMessenger;
     G4double                 fCollectionAltitude;

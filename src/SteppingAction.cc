@@ -67,9 +67,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   G4Track* track = step->GetTrack();
   const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
-  G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-  G4double trackWeight = track->GetWeight();
+  const G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
+  const G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+  const G4double trackWeight = track->GetWeight();
 
   // Check for NaN energy
   if(std::isnan(postStepKineticEnergy))
@@ -100,58 +100,36 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   const G4ThreeVector momentumDirection = track->GetMomentumDirection();
 
   // ===========================
-  // Energy Deposition Tracking
+  // Energy Spectrum Tracking
   // ===========================
-  // Add energy deposition to histogram owned by RunAction, which is written to a results file at the end of each thread's simulation run  
   G4double zPos = position.z(); // Particle altitude in world coordinates
+  G4double alt_km = (zPos/km) + 500.0; // Altitude from ground level. + 500 because z = 0 in the simulation is at 500 km above ground level.
+
+  G4double sampleAltitudes_km[] = {200.0, 110.0, 90.0, 400.0, 70.0}; // Altitudes to sample the energy spectrum at, km
+
+  G4double preStepAlt_km  = (step->GetPreStepPoint()->GetPosition().z()/km) + 500.0;
+  G4double postStepAlt_km = (step->GetPostStepPoint()->GetPosition().z()/km) + 500.0;
+
+  // Loop over every sample altitude and see if this particle has crossed that plane
+  for(int i = 0; i < std::end(sampleAltitudes_km) - std::begin(sampleAltitudes_km); i++){
+    bool crossedPlane = (preStepAlt_km > sampleAltitudes_km[i]) != (postStepAlt_km > sampleAltitudes_km[i]);
+    if( crossedPlane == false ){continue;} // Don't proceed if we haven't crossed the plane
   
-  // Kill particles that go below ground level
-  if((500.0 + (zPos/km)) < 0){ track->SetTrackStatus(fStopAndKill); }
+    G4double crossingEnergy = postStepKineticEnergy;
 
-  // Log energy deposition
-  G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to lowest whole km
-  if(altitudeAddress > 0 && altitudeAddress < 1000) 
-  {
-    G4double weightedEnergyDeposition = step->GetTotalEnergyDeposit() * trackWeight;
-    LogEnergy(altitudeAddress, weightedEnergyDeposition/keV); // Threadlocking occurs inside LogEnergy
+    // If it's not safe to use pre- and post- kinetic energy interchangably, do an interpolation to get approximate energy at the plane crossing.
+    if( std::abs((postStepKineticEnergy - preStepKineticEnergy)/preStepKineticEnergy) > 1e-10 ){
+      G4double t = (sampleAltitudes_km[i] - preStepAlt_km) / (postStepAlt_km - preStepAlt_km);
+      crossingEnergy = preStepKineticEnergy + (t * (postStepKineticEnergy - preStepKineticEnergy)); // Linear interpolation
+      
+      G4cout << "WARNING: Interpolated crossing energy." << G4endl; // Warn about it
+    }
+
+    G4cout << particleName << " crossed plane at " << sampleAltitudes_km[i] << " km with " << crossingEnergy/keV << " keV" << G4endl;
+    // TODO record into histogram
+    // TODO separate energy spectra for p+ e- and alpha
+
   }
-
-  // ===========================
-  // Backscatter Tracking
-  // ===========================
-  // Write backscatter to memory if detected
-  // Backscatter is defined as a particle above the collection altitude and moving upwards in world coordinates
-  // We subtract 500 from the collection altitude because +500.0 km above sea level ==> z = 0.0 in world coordinates
-  if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
-  {
-    // Calculate particle pitch angle
-    G4double spacetimePoint[4] = {position.x(), position.y(), position.z(), 0};
-    G4double emComponents[6];
-
-    G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
-    fieldManager->GetDetectorField()->GetFieldValue(spacetimePoint, emComponents);
-    G4double B[3] = {emComponents[0], emComponents[1], emComponents[2]};
-    G4double normB = std::sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
-
-    G4double normMomentum = std::sqrt(pow(momentumDirection.x(), 2) + pow(momentumDirection.y(), 2) + pow(momentumDirection.z(), 2));
-    G4double dotProd = (momentumDirection.x() * B[0]) + (momentumDirection.y() * B[1]) + (momentumDirection.z() * B[2]);
-
-    G4double pitchAngleDeg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
-
-    // Write particle parameters to memory
-    fRunAction->fBackscatteredParticleNames.push_back(particleName);
-    fRunAction->fBackscatteredTrackWeights.push_back(trackWeight);
-    fRunAction->fBackscatteredEnergieskeV.push_back(postStepKineticEnergy/keV);
-    fRunAction->fBackscatteredPitchAnglesDeg.push_back(pitchAngleDeg);
-    fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
-    fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
-
-    // Kill particle
-    track->SetTrackStatus(fStopAndKill);
-  }
-
-
-
 }
 
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
@@ -159,5 +137,5 @@ void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
   // This is in a different function so the threadlock isn't in scope for all of every step.
   // Lock unlocks when it goes out of scope
   G4AutoLock lock(&aMutex); // Might not be necessary with thread-specific files
-  fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy);
+  //fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy);
 }
