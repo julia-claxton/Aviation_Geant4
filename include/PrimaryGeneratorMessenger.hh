@@ -1,5 +1,3 @@
-
-
 #ifndef PrimaryGeneratorMessenger_h
 #define PrimaryGeneratorMessenger_h 1
 
@@ -23,11 +21,11 @@ public:
 
 private:
   PrimaryGeneratorAction* fPrimaryGenerator;
-  G4UIdirectory*             fPrimDir;
-  G4UIcmdWithAString*        fcmd3;
-  G4UIcmdWithADouble*        fDcmd;
-  G4UIcmdWithADouble*        fDcmd2;
-  G4UIcmdWithADouble*        fDcmd3;
+  G4UIdirectory*          fPrimDir;
+  G4UIcmdWithAString*     fcmd3;
+  G4UIcmdWithADouble*     fDcmd;
+  G4UIcmdWithADouble*     fDcmd2;
+  G4UIcmdWithADouble*     fDcmd3;
 };
 
 #endif

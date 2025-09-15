@@ -29,6 +29,7 @@
 /// \brief Creates particles that will be propagated in the simulation
 
 #include "PrimaryGeneratorAction.hh"
+#include "PrimaryGeneratorMessenger.hh"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -41,7 +42,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
-#include "PrimaryGeneratorMessenger.hh"
 #include "G4TransportationManager.hh"
 #include "G4FieldManager.hh"
 #include "G4MagneticField.hh"

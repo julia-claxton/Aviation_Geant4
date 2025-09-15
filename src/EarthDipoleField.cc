@@ -1,6 +1,7 @@
 
 
 #include "EarthDipoleField.hh"
+#include "EarthDipoleFieldMessenger.hh"
 #include <numeric>
 #include <functional>
 
@@ -9,30 +10,25 @@
  * from G4MagneticField. GetFieldValue() is a Geant virtual method that 
  * is called to obtain magnetic and electric field values for particle 
  * propagation purposes.
- * 
- * Future work: 
- *  - implement IGRF magnetic field (and others)
- * 
- * Grant Berland
+ *
  */
-
-
 
 #include <chrono>
 using namespace std::chrono;
 #include <iostream>
 #include <unistd.h>
 
-
-
 EarthDipoleField::EarthDipoleField()
 : G4MagneticField(),
+  fDipoleFieldMessenger(0),
   fDipoleMoment(6.4e22), // Earth magnetic moment, A * m^2. Value source: https://sciencedemonstrations.fas.harvard.edu/presentations/earths-magnetic-field
   fMLAT_degrees(65.77),  // Units: deg
   fRe(6371e3),           // Units: m
   fu0(1.257e-6),         // Units: N * A^-2
   fpi(3.14159265358979)
-{}
+{
+  fDipoleFieldMessenger = new EarthDipoleFieldMessenger(this);
+}
 
 
 EarthDipoleField::~EarthDipoleField()
@@ -77,5 +73,3 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
   Bfield[4] = 0;    // Ey
   Bfield[5] = 0;    // Ez
 }
-
-

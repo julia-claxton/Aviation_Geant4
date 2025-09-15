@@ -74,8 +74,8 @@ for E in energies_to_simulate
     ./G4EPP $(number_of_particles) $(particle) $(energy_string) $(α)
 
     # Copy results to safe folder
-    cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-    cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
     """
     )
     close(file)

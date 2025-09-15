@@ -23,56 +23,40 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PrimaryGeneratorAction.hh 90623 2015-06-05 09:24:30Z gcosmo $
 //
-/// \file PrimaryGeneratorAction.hh
-/// \brief Definition of the PrimaryGeneratorAction class
+//
+//
+//
 
-#ifndef PrimaryGeneratorAction_h
-#define PrimaryGeneratorAction_h 1
+#include "EarthDipoleField.hh"
+#include "EarthDipoleFieldMessenger.hh"
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4ParticleGun.hh"
-#include "G4GeneralParticleSource.hh"
-#include "globals.hh"
+#include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithADouble.hh"
+#include "G4UIdirectory.hh"
 
-class G4ParticleGun;
-class G4Event;
-class G4Box;
-class PrimaryGeneratorMessenger;
 
-struct ParticleSample{
-	G4double xPos, yPos, zPos;
-	G4double xDir, yDir, zDir;
-	G4double energy;
-};
-
-/// The primary generator action class with particle gun
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+EarthDipoleFieldMessenger::EarthDipoleFieldMessenger(EarthDipoleField* field)
+ : G4UImessenger(),
+  fDipoleField(field)
 {
-  public:
-    PrimaryGeneratorAction();    
-    virtual ~PrimaryGeneratorAction();
+  fBeamDir = new G4UIdirectory("/fieldParameters/");
 
-    // method from the base class
-    virtual void GeneratePrimaries(G4Event*);         
-    
-    // Messenger methods
-    void SetBeamEnergy(G4double energy){ fBeamEnergy = energy;};
-    void SetBeamPitchAngle(G4double pitchAngle){fBeamPitchAngle = pitchAngle; };
-    void SetParticleInitialAlt(G4double startingAltitude){fInitialParticleAlt = startingAltitude; };
-    void SetInputParticleType(G4String particle){fSourceType = particle; };
-    const G4ParticleGun* GetParticleGun() const { return fParticleGun; } // method to access particle gun
-  
-  private:
-    G4ParticleGun*  fParticleGun;
-    PrimaryGeneratorMessenger* fPrimaryMessenger;
-    G4double fBeamEnergy;
-    G4double fBeamPitchAngle;
-    G4double fInitialParticleAlt;
-    G4double fPI;
-    G4double fRad2Deg;
-    G4String fSourceType;
-};
+  fMlatCmd = new G4UIcmdWithADouble("/fieldParameters/setMLAT",this);
+  fMlatCmd->SetParameterName("Injection magnetic latitude [deg]",true);
+  fMlatCmd->SetDefaultValue(90.0);
+  fMlatCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+}
 
-#endif
+EarthDipoleFieldMessenger::~EarthDipoleFieldMessenger()
+{
+  delete fBeamDir;
+  delete fMlatCmd;
+}
+
+void EarthDipoleFieldMessenger::SetNewValue( G4UIcommand* command, G4String newValue)
+{
+  if( command == fMlatCmd ){ fDipoleField->SetMLAT(std::stod(newValue)); }
+}
+

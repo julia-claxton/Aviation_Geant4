@@ -1,8 +1,8 @@
 
 
 #include "PrimaryGeneratorMessenger.hh"
-
 #include "PrimaryGeneratorAction.hh"
+
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithAString.hh"
@@ -28,7 +28,7 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   
   fDcmd2 = new G4UIcmdWithADouble("/beamParameters/setBeamPitchAngle",this);
   fDcmd2->SetParameterName("Beam pitch angle [deg]",true);
-  fDcmd2->SetDefaultValue(50.);
+  fDcmd2->SetDefaultValue(0.0);
   fDcmd2->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   fDcmd3 = new G4UIcmdWithADouble("/beamParameters/setParticleStartingAltitude",this);
