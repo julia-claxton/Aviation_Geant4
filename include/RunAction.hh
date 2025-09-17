@@ -52,11 +52,13 @@ class RunAction : public G4UserRunAction
     virtual ~RunAction();
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
-    void SetEnergyDepositionFileName(G4String name){fEnergyDepositionFileName=name;};
+    void SetEnergySpectraFileName(G4String name){fEnergySpectraFileName=name;};
     void ChangeLooperParameters(const G4ParticleDefinition* particleDef ); // Helper method to change the Transportation's 'looper' parameters 
     std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true); // Helper method to find the Transportation process for a particle type 
     std::vector<G4double> linspace(G4double start, G4double stop, int n);
-
+    void writeThreadHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram);
+    void writeMainHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram);
+std::vector<std::vector<G4double>> readThreadFile(std::string filename);
   public:
     void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
     void     SetWarningEnergy( double val ){fWarningEnergy   = val;}
@@ -66,11 +68,32 @@ class RunAction : public G4UserRunAction
     G4double GetImportantEnergy(){ return fImportantEnergy; } 
 
   public:
-    G4double fNumberEnergyBins = 100;
-  
+    // Histogram limits
+    static constexpr G4double fMinSampleAltitude_km = 0;
+    static constexpr G4double fMaxSampleAltitude_km = 100;
+    static constexpr G4int fNumberOfSamplePlanes = 201;
+
+    static constexpr G4double fEnergyMinkeV = 1e-2; // Minimum energy in the simulation
+    static constexpr G4double fEnergyMaxkeV = 10e6; // 10 GeV, maximum energy for NIST proton stopping power tables
+    static constexpr G4int fNumberOfEnergyBins = 250;
+
+    // Axis labels
+    std::vector<G4double> sampleAltitudes_km;
+    std::vector<G4double> energyBinEdges_keV;
+
+    // Histograms
+    std::vector<std::vector<G4double>> protonCounts;
+    std::vector<std::vector<G4double>> electronCounts;
+    std::vector<std::vector<G4double>> gammaCounts;
+    std::vector<std::vector<G4double>> alphaCounts;
+
+    // Precalculated for speed
+    G4double histogramFactor; // Factor we multiply by for each successive energy histogram edge
+    G4double altitudeSpacing_km; // Space between sample altitudes in km
+
   private:
     RunActionMessenger* fRunActionMessenger;
-    G4String fEnergyDepositionFileName;
+    G4String fEnergySpectraFileName;
 
     // Values for initialising 'loopers' parameters of Transport process
     G4int    fNumberOfTrials  =  0;    // Default will not overwrite

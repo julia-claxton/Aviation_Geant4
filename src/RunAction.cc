@@ -56,30 +56,34 @@
 RunAction::RunAction():
   G4UserRunAction(),
   fRunActionMessenger(),
-  fEnergyDepositionFileName()
+  fEnergySpectraFileName()
   
 {
+  // Set killing energies
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
   fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Value arbitrary
 
   fRunActionMessenger = new RunActionMessenger(this); 
 
-  // Set up energy spectrum histograms
-  G4cout << fNumberEnergyBins << " bins in spectrum" << G4endl;
+  // Create sample planes
+  sampleAltitudes_km = linspace(fMinSampleAltitude_km, fMaxSampleAltitude_km, fNumberOfSamplePlanes);
 
-  G4double energyMinMeV = 1e-3; // TEMP
-  G4double energyMaxMeV = 1e3; // TEMP
-
-  // TODO logspace
-  std::vector<G4double> energyBinEdges = linspace(energyMinMeV, energyMaxMeV, fNumberEnergyBins + 1); 
-
-  // todo move fNumberEnergyBins inside here, or move min/max out to class def in .hh
-  // todo construct the full 2d histogram (x3 for each species w/ stopping power data)
-  // todo get those full histograms into global runaction scope so steppingaction can add to it
-
-  throw;
+  // Create energy bins
+  energyBinEdges_keV = linspace(std::log10(fEnergyMinkeV), std::log10(fEnergyMaxkeV), fNumberOfEnergyBins + 1); 
+  for(int i = 0; i < fNumberOfEnergyBins+1; i++){
+    energyBinEdges_keV.at(i) = pow(10, energyBinEdges_keV.at(i));
+  }
   
+  // Create histograms initialized to zero
+  protonCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  electronCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  gammaCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  alphaCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  
+  // Precalculate things
+  histogramFactor = pow(10, (std::log10(fEnergyMaxkeV) - std::log10(fEnergyMinkeV)) / fNumberOfEnergyBins);
+  altitudeSpacing_km = std::abs(sampleAltitudes_km[1] - sampleAltitudes_km[0]);
 }
 
 RunAction::~RunAction()
@@ -94,7 +98,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
   if(threadID == -1)
   {
     // First, make sure that the build directory set by the user is correct
-    std::filesystem::path resultsPath = fEnergyDepositionFileName.c_str();
+    std::filesystem::path resultsPath = fEnergySpectraFileName.c_str();
     std::filesystem::path buildDirectory = resultsPath.parent_path().parent_path();
     if(std::filesystem::is_directory(buildDirectory) == false)
     {
@@ -153,21 +157,25 @@ void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef)
 
 void RunAction::EndOfRunAction(const G4Run*)
 {
-  /*
   // Get thread ID to see if we are main thread or not
   int threadID = G4Threading::G4GetThreadId();
 
   // If we are not the main thread, write energy deposition and backscatter to file and exit
   if(threadID != -1)
   {
-    // Write energy deposition to file
-    std::string energyDepositionThreadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
-    fEnergyDepositionHistogram->WriteHistogramToFile(energyDepositionThreadFilename);
+    std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha"};
+    std::vector<std::vector<std::vector<G4double>>> dataToWrite = {electronCounts, protonCounts, gammaCounts, alphaCounts};
 
-    // Write backscatter to file
-    std::string backscatterThreadFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
-    backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
-    writeBackscatterToFile(backscatterThreadFilename);
+    for(int particleIndex = 0; particleIndex < 4; particleIndex++){
+      // Write energy deposition to file
+      std::string filepath = 
+        fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) 
+        + "_" + particlesToWrite[particleIndex]
+        + "_thread" + std::to_string(threadID)
+      + ".csv";
+
+      writeThreadHistogramToFile(filepath, dataToWrite[particleIndex]);
+    }
 
     // Done writing data, now print status message
     // Pad with spaces to have consistent print location
@@ -186,77 +194,35 @@ void RunAction::EndOfRunAction(const G4Run*)
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
   G4cout << "Merging thread-specific data... ";
 
-  // Create main energy deposition data structure
-  myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
-
-  // Create main backscatter file
-  std::ofstream backscatterFile;
-  std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
-  backscatterFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-  backscatterFile << "particle_name,particle_weight,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
-
-  int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
-  for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++)
-  {
-    // ENERGY DEPOSITION:
-    std::string energyDepositionThreadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
-
-    // Read in energy deposition from this thread via csv
-    io::CSVReader<2> in(energyDepositionThreadFilename);
-    in.read_header(io::ignore_extra_column, "altitude_km", "energy_deposition_kev");
-    int altitudeAddress; double energy_deposition;
-
-    // For each row in the file, add energy deposition to main histogram
-    while(in.read_row(altitudeAddress, energy_deposition)){ 
-      mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition);
-    }
-    // Delete this thread-specific file
-    std::remove(energyDepositionThreadFilename.c_str());
+  std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha"};
+  
 
 
-    // BACKSCATTER:
-    std::string backscatterThreadFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
-    backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
-    // Move on if file doesn't exist (i.e. no backscatter from this thread)
-    if(std::filesystem::exists(backscatterThreadFilename) == false){continue;}
 
-    // Read in backscatter from this thread via csv
-    io::CSVReader<10> inBackscatter(backscatterThreadFilename);
-    inBackscatter.read_header(io::ignore_extra_column, "particle_name", "particle_weight", "particle_energy_keV", "particle_pitch_angle_deg", "momentum_direction_x", "momentum_direction_y", "momentum_direction_z", "x_meters", "y_meters", "z_meters");
-    std::string particle_name;
-    double particle_weight;
-    double particle_energy_keV;
-    double particle_pitch_angle_deg;
-    double momentum_direction_x;
-    double momentum_direction_y;
-    double momentum_direction_z;
-    double x_meters;
-    double y_meters;
-    double z_meters;
 
-    // For each row in the file, add energy deposition to main histogram
-    while(inBackscatter.read_row(particle_name, particle_weight, particle_energy_keV, particle_pitch_angle_deg, momentum_direction_x, momentum_direction_y, momentum_direction_z, x_meters, y_meters, z_meters)){ 
-      backscatterFile << 
-        particle_name            << "," <<
-        particle_weight          << "," <<
-        particle_energy_keV      << "," <<
-        particle_pitch_angle_deg << "," <<
-        momentum_direction_x     << "," <<
-        momentum_direction_y     << "," <<
-        momentum_direction_z     << "," <<
-        x_meters                 << "," <<
-        y_meters                 << "," <<
-        z_meters                 << "\n"
-      ;
-    }
+  // TODO loop this over thread and particle type
+  for(int particleIndex = 0; particleIndex < 4; particleIndex++){
+    mainFilename = fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) + particlesToWrite[particleIndex] + ".csv";
 
-    // Delete the thread-specific file
-    std::remove(backscatterThreadFilename.c_str());
+    int thread = 0;
+
+    std::string threadFilepath = 
+      fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) 
+      + "_" + particlesToWrite[particleIndex]
+      + "_thread" + std::to_string(thread)
+    + ".csv";
+
+    // csv.h seems to be hard to use when you have hundreds of columns so I have to resort to writing my own reader. Lays down facedown on the floor.
+    std::vector<std::vector<G4double>> threadData = readThreadFile(threadFilepath);
+    
+    // TODO delete threadfile
+    
+    // end loop
+    G4cout << "TODO" << G4endl; throw;
+    
+    writeMainHistogramToFile(fEnergySpectraFileName, threadData); // TEMP for testing
   }
-  mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
-  backscatterFile.close();
-  */
 
   G4cout << "Done" << G4endl;
 }
@@ -268,6 +234,82 @@ std::vector<G4double> RunAction::linspace(G4double start, G4double stop, int n){
   for(int i = 0; i < n; i++){
     result.push_back(start + (i * stepSize));
   }
+  return result;
+}
+
+void RunAction::writeMainHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram)
+{
+  // Open file
+  std::ofstream dataFile;
+  dataFile.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+
+  // Write header
+  dataFile << "altitude_km,";
+  for(int energyIndex = 0; energyIndex < fNumberOfEnergyBins; energyIndex++){
+    dataFile << energyBinEdges_keV[energyIndex] << "keV-" << energyBinEdges_keV[energyIndex+1] << "keV";
+    energyIndex == fNumberOfEnergyBins-1 ? dataFile << "\n" : dataFile << ",";
+  }
+
+  // Write rows
+  for(int altitudeIndex = 0; altitudeIndex < fNumberOfSamplePlanes; altitudeIndex++){
+    // Write altitude label
+    dataFile << sampleAltitudes_km[altitudeIndex] << ",";
+
+    // Write energy spectrum
+    for(int energyIndex = 0; energyIndex < fNumberOfEnergyBins; energyIndex++){
+      dataFile << histogram[altitudeIndex][energyIndex];
+      energyIndex == fNumberOfEnergyBins-1 ? dataFile << "\n" : dataFile << ",";
+    }
+  }
+
+  // Close file
+  dataFile.close();
+}
+
+void RunAction::writeThreadHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram)
+{
+  // Open file
+  std::ofstream dataFile;
+  dataFile.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+
+  // No header, go right to the rows
+  for(int altitudeIndex = 0; altitudeIndex < fNumberOfSamplePlanes; altitudeIndex++){
+    for(int energyIndex = 0; energyIndex < fNumberOfEnergyBins; energyIndex++){
+      // Write energy spectrum
+      dataFile << histogram[altitudeIndex][energyIndex];
+      energyIndex == fNumberOfEnergyBins-1 ? dataFile << "\n" : dataFile << ",";
+    }
+  }
+
+  // Close file
+  dataFile.close();
+}
+
+std::vector<std::vector<G4double>> RunAction::readThreadFile(std::string filename){
+  // Allocate result
+  std::vector<std::vector<G4double>> result;
+  result.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+
+  // Open file
+  std::ifstream file;
+  file.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+
+  // Parse lines
+  int dim1Index = 0;
+  int dim2Index = 0;
+
+  std::string line;
+  std::string token;
+  while( std::getline(file, line) ){
+    std::istringstream word(line);
+    while ( std::getline(word, token, ',') ){
+      result[dim1Index][dim2Index] = std::stod(token);
+      dim2Index++;
+    }
+    dim1Index++;
+    dim2Index = 0;
+  }
+  file.close();
   return result;
 }
 

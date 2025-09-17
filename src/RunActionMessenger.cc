@@ -11,7 +11,7 @@ RunActionMessenger::RunActionMessenger(RunAction* runAct)
   fPrimDir = new G4UIdirectory("/dataCollection/");
   fPrimDir->SetGuidance("Set file names for energy deposition result file.");
 
-  fcmd1 = new G4UIcmdWithAString("/dataCollection/setEnergyDepositionFileName", this);
+  fcmd1 = new G4UIcmdWithAString("/dataCollection/setEnergySpectraFileName", this);
   fcmd1->SetParameterName("Enter file name.",true);
   fcmd1->SetDefaultValue("energy_deposition.csv");
   fcmd1->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -25,5 +25,5 @@ RunActionMessenger::~RunActionMessenger()
 
 void RunActionMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if(command == fcmd1){fRunAction->SetEnergyDepositionFileName(newValue);}
+  if(command == fcmd1){fRunAction->SetEnergySpectraFileName(newValue);}
 }

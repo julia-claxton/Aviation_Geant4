@@ -53,7 +53,7 @@ class SteppingAction : public G4UserSteppingAction
     virtual ~SteppingAction();
 
     void SetBackscatterFilename(G4String name){fBackscatterFilename = name;};
-    void LogEnergy(G4int, G4double);    
+    G4double logbase(G4double base, G4double x);    
     
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
