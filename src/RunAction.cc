@@ -194,36 +194,37 @@ void RunAction::EndOfRunAction(const G4Run*)
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
   G4cout << "Merging thread-specific data... ";
 
+  // Loop over particle type
   std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha"};
-  
-
-
-
-
-
-  // TODO loop this over thread and particle type
   for(int particleIndex = 0; particleIndex < 4; particleIndex++){
-    mainFilename = fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) + particlesToWrite[particleIndex] + ".csv";
+    // Create main filename
+    std::string mainFilename = fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) + "_" + particlesToWrite[particleIndex] + "_spectra.csv";
 
-    int thread = 0;
+    // Allocate result
+    std::vector<std::vector<G4double>> result;
+    result.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
 
-    std::string threadFilepath = 
-      fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) 
-      + "_" + particlesToWrite[particleIndex]
-      + "_thread" + std::to_string(thread)
-    + ".csv";
+    // Loop over threads and add up histograms
+    int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
+    for(int thread = 0; thread < nThreads; thread++){
+      std::string threadFilepath = 
+        fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) 
+        + "_" + particlesToWrite[particleIndex]
+        + "_thread" + std::to_string(thread)
+      + ".csv";
 
-    // csv.h seems to be hard to use when you have hundreds of columns so I have to resort to writing my own reader. Lays down facedown on the floor.
-    std::vector<std::vector<G4double>> threadData = readThreadFile(threadFilepath);
-    
-    // TODO delete threadfile
-    
-    // end loop
-    G4cout << "TODO" << G4endl; throw;
-    
-    writeMainHistogramToFile(fEnergySpectraFileName, threadData); // TEMP for testing
+      // Get data from this thread
+      // csv.h seems to be hard to use when you have hundreds of columns so I have to resort to writing my own reader. Lays down face down on the floor.
+      std::vector<std::vector<G4double>> threadData = readThreadFile(threadFilepath);
+      
+      // Add it to the result
+      result = addVectors(result, threadData);
+
+      // Delete this thread-specific file
+      std::remove(threadFilepath.c_str());
+    }
+    writeMainHistogramToFile(mainFilename, result);
   }
-
   G4cout << "Done" << G4endl;
 }
 
@@ -233,6 +234,19 @@ std::vector<G4double> RunAction::linspace(G4double start, G4double stop, int n){
 
   for(int i = 0; i < n; i++){
     result.push_back(start + (i * stepSize));
+  }
+  return result;
+}
+
+std::vector<std::vector<G4double>> RunAction::addVectors(std::vector<std::vector<G4double>> v1, std::vector<std::vector<G4double>> v2){
+  // Allocate result
+  std::vector<std::vector<G4double>> result;
+  result.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+
+  for(int altitudeIndex = 0; altitudeIndex < fNumberOfSamplePlanes; altitudeIndex++){
+    for(int energyIndex = 0; energyIndex < fNumberOfEnergyBins; energyIndex++){
+      result[altitudeIndex][energyIndex] = v1[altitudeIndex][energyIndex] + v2[altitudeIndex][energyIndex];
+    }
   }
   return result;
 }
@@ -292,7 +306,7 @@ std::vector<std::vector<G4double>> RunAction::readThreadFile(std::string filenam
 
   // Open file
   std::ifstream file;
-  file.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+  file.open(filename, std::ifstream::in);
 
   // Parse lines
   int dim1Index = 0;

@@ -48,8 +48,7 @@
 
     /control/alias BEAM_PARAMETERS {BEAM_PARTICLE_LONGNAME}_input_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE_DEG}deg_{NUMBER_OF_PARTICLES}particles
 
-    /dataCollection/setEnergySpectraFileName {RESULTS_DIR}/energy_spectra_{BEAM_PARAMETERS}.csv
-    /dataCollection/setBackscatterFilename NULL
+    /dataCollection/setEnergySpectraFileName {RESULTS_DIR}/{BEAM_PARAMETERS}.csv
 
 # Set beam parameters
     /beamParameters/setParticleStartingAltitude {STARTING_ALTITUDE_KM}

@@ -58,7 +58,9 @@ class RunAction : public G4UserRunAction
     std::vector<G4double> linspace(G4double start, G4double stop, int n);
     void writeThreadHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram);
     void writeMainHistogramToFile(std::string filename, std::vector<std::vector<G4double>> histogram);
-std::vector<std::vector<G4double>> readThreadFile(std::string filename);
+    std::vector<std::vector<G4double>> readThreadFile(std::string filename);
+    std::vector<std::vector<G4double>> addVectors(std::vector<std::vector<G4double>> v1, std::vector<std::vector<G4double>> v2);
+
   public:
     void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
     void     SetWarningEnergy( double val ){fWarningEnergy   = val;}
