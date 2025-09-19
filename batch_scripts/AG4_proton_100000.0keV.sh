@@ -16,9 +16,9 @@ set -e
 
 # Run simulation
 cd /projects/jucl6426/Aviation_G4EPP/build/
-./aviation_G4EPP 100 proton 100000.0
+./aviation_G4EPP 100000 proton 100000.0
 
 # Copy results to safe folder
-#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_proton_input_100000.0keV_0.0deg_100particles.csv /projects/jucl6426/G4EPP/results
-#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_proton_input_100000.0keV_0.0deg_100particles.csv /projects/jucl6426/G4EPP/results
+#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_proton_input_100000.0keV_deg_100000particles.csv /projects/jucl6426/G4EPP/results
+#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_proton_input_100000.0keV_deg_100000particles.csv /projects/jucl6426/G4EPP/results
 
