@@ -57,7 +57,7 @@ for E in energies_to_simulate
     #SBATCH --nodes 1
     #SBATCH --ntasks-per-node 40
     #SBATCH --time $(time_limit)
-    #SBATCH --output /projects/jucl6426/G4EPP/results/log_$(job_name).out
+    #SBATCH --output /projects/jucl6426/Aviation_G4EPP/results/log_$(job_name).out
     #SBATCH --qos=$(qos)
     #SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
     #SBATCH --requeue
@@ -68,12 +68,12 @@ for E in energies_to_simulate
     set -e
 
     # Run simulation
-    cd /projects/jucl6426/G4EPP/build/
-    ./G4EPP $(number_of_particles) $(particle) $(energy_string)
+    cd /projects/jucl6426/Aviation_G4EPP/build/
+    ./aviation_G4EPP $(number_of_particles) $(particle) $(energy_string)
 
     # Copy results to safe folder
-    cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-    cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    #cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    #cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
     """
     )
     close(file)

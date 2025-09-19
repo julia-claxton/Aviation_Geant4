@@ -4,7 +4,7 @@
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
 #SBATCH --time 1-00:00:00
-#SBATCH --output /projects/jucl6426/G4EPP/results/log_proton_25118.9keV_0.0deg.out
+#SBATCH --output /projects/jucl6426/Aviation_G4EPP/results/log_proton_25118.9keV_0.0deg.out
 #SBATCH --qos=preemptable
 #SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
 #SBATCH --requeue
@@ -15,10 +15,10 @@
 set -e
 
 # Run simulation
-cd /projects/jucl6426/G4EPP/build/
-./G4EPP 100000 proton 25118.9 0.0
+cd /projects/jucl6426/Aviation_G4EPP/build/
+./aviation_G4EPP 100000 proton 25118.9
 
 # Copy results to safe folder
-cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_proton_input_25118.9keV_0.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
-cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_proton_input_25118.9keV_0.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_proton_input_25118.9keV_0.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+#cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_proton_input_25118.9keV_0.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
 
