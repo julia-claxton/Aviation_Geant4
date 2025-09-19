@@ -31,4 +31,4 @@
     # to not prematurely kill particles.
 
 # Magnetic latitude of the injection point. Units: [deg]
-    /control/alias MLAT_DEGREES 65.77
+    /control/alias MLAT_DEGREES 45

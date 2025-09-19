@@ -87,6 +87,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   r->yPos = 0;
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
+  /*
   // Set velocity. Starts electrons with gyromotion about field line at a given pitch angle.
   G4double pitchAngle = fBeamPitchAngle * 3.14159265359 / 180.0; // Convert degrees to radians
   G4double gyroPhase  = G4UniformRand() * 2. * fPI;
@@ -125,6 +126,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
     throw;
   }
+  */
+
+  // Send particles straight down: perpendicular incidence
+  r->xDir = 0;
+  r->yDir = 0;
+  r->zDir = -1;
 
   // Communicate to particle gun
   fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 

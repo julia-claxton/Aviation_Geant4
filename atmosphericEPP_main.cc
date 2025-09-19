@@ -78,9 +78,9 @@ int main(int argc,char** argv)
 {
   // We need 4 arguments provided: a number of particles, particle type, energy, and pitch angle to run.
   // Error out if we don't get those
-  if(argc != 5)
+  if(argc != 4)
   {
-    std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 4 required. Format: ./G4EPP <number of particles> <particle name> <particle energy> <particle pitch angle>" << std::endl;
+    std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 3 required. Format: ./G4EPP <number of particles> <particle name> <particle energy>" << std::endl;
     throw;
   }
   
@@ -152,10 +152,6 @@ int main(int argc,char** argv)
   G4String energy = argv[3];
   UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
 
-  // Set beam pitch angle
-  G4String pitch_angle = argv[4];
-  UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE_DEG " + pitch_angle);
-
   // Print status block
   std::cout << "=====================================================================" << std::endl;
   std::time_t t = std::time(nullptr);
@@ -172,7 +168,6 @@ int main(int argc,char** argv)
   std::cout << 
     "    Input:       " << nParticles  << " " << longname << "s " << std::endl <<
     "    Energy:      " << energy      << " keV" << std::endl <<
-    "    Pitch Angle: " << pitch_angle << " deg" <<
   std::endl;
   std::cout << "=====================================================================" << std::endl;
   std::cout << std::endl;
@@ -192,7 +187,7 @@ int main(int argc,char** argv)
   tm = *std::localtime(&t);
 
   std::cout << "=====================================================================" << std::endl;
-  std::cout << "Simulation completed in " << elapsed_time_ms/1000.0 << " seconds (" << energy << " keV, " << pitch_angle << " deg)" << std::endl;
+  std::cout << "Simulation completed in " << elapsed_time_ms/1000.0 << " seconds (" << nParticles << " " << longname << "s @ " << energy << " keV)" << std::endl;
   std::cout << "Simulation Finish: " << std::put_time(&tm, "%F %T") << std::endl;
   std::cout << "=====================================================================" << std::endl << std::endl;
 
