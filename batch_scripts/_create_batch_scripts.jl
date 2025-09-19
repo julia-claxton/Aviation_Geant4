@@ -2,14 +2,14 @@ using Statistics, LinearAlgebra
 using Glob
 using Printf
 
-number_of_particles = 100_000  # Number of particles to input
+number_of_particles = 100#_000  # Number of particles to input
 
 particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
 energy_kev_min = 10_000       # Minimum beam energy, keV
-energy_kev_max = 1_000_000       # Maximum beam energy, keV
-energy_nbeams = 6             # Number of log-spaced beams to place between minimum and maximum energy
+energy_kev_max = 100_000 #1_000_000       # Maximum beam energy, keV
+energy_nbeams = 2             # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 
 pitch_angle_deg_min = 0        # Minimum beam pitch angle, deg
@@ -34,7 +34,7 @@ for E in energies_to_simulate
   for α in pitch_angles_to_simulate
     input_particle_longname = particle == "e-" ? "electron" : particle
     energy_string = @sprintf "%.1f" E
-    job_name = "$(input_particle_longname)_$(energy_string)keV_$(α)deg"
+    job_name = "AG4_$(input_particle_longname)_$(energy_string)keV"
     qos = "preemptable"
     time_limit = "1-00:00:00"
 
