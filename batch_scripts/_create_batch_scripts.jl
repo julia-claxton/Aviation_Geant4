@@ -7,9 +7,9 @@ number_of_particles = 100_000  # Number of particles to input
 particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
-energy_kev_min = 10_000       # Minimum beam energy, keV
-energy_kev_max = 1_000_000 #1_000_000       # Maximum beam energy, keV
-energy_nbeams = 5             # Number of log-spaced beams to place between minimum and maximum energy
+energy_kev_min = 1_000       # Minimum beam energy, keV
+energy_kev_max = 100_000     # Maximum beam energy, keV
+energy_nbeams = 100          # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
 
@@ -28,19 +28,12 @@ for E in energies_to_simulate
   # Don't simulate if we already have data for a given beam
   # TODO
 
-  #=
-  if (65 ≤ α ≤ 72) && (E < 200)
-    qos = "blanca-lair"
-    time_limit = "7-00:00:00"
-  end
-  =#
-
   file = open("$(@__DIR__)/$(job_name).sh", "w")
   println(file,
   """
   #!/bin/bash
 
-  #SBATCH --job-name G4EPP_$(job_name)
+  #SBATCH --job-name $(job_name)
   #SBATCH --nodes 1
   #SBATCH --ntasks-per-node 40
   #SBATCH --time $(time_limit)
@@ -59,8 +52,7 @@ for E in energies_to_simulate
   ./aviation_G4EPP $(number_of_particles) $(particle) $(energy_string)
 
   # Copy results to safe folder
-  #cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-  #cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+  cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_45deg_input_449.5km_record_450.5km/$(input_particle_longname)_input_$(energy_string)keV_$(number_of_particles)particles_*_spectra.csv /projects/jucl6426/Aviation_G4EPP/results
   """
   )
   close(file)
