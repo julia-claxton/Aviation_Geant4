@@ -120,7 +120,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
 
 
-  int n_planes_crossed = 0;
+  //int n_planes_crossed = 0;
 
 
 
@@ -130,11 +130,12 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     bool crossedPlane = (preStepAlt_km > fRunAction->sampleAltitudes_km[altitudeIndex]) != (postStepAlt_km > fRunAction->sampleAltitudes_km[altitudeIndex]);
     if( crossedPlane == false ){continue;} // Don't proceed if we haven't crossed the plane
   
-
+    /*
     n_planes_crossed++;
     if(n_planes_crossed > 1){
       G4cout << "Crossed " << n_planes_crossed << " planes." << G4endl;
     }
+    */
 
     // Get energy at plane crossing point
     G4double crossingEnergy = postStepKineticEnergy;
@@ -161,7 +162,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     // If the particle's altitude change is less than half the space between altitude planes, it is not possible to have crossed
     // multiple planes in this step and we can thus break the loop for speed.
     if( std::abs(postStepAlt_km - postStepAlt_km) < fRunAction->altitudeSpacing_km/2){
-      //break;
+      break;
     }
   }
 }
