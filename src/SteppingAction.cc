@@ -112,42 +112,32 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double preStepAlt_km  = (step->GetPreStepPoint()->GetPosition().z()/km) + 500.0;
   G4double postStepAlt_km = (step->GetPostStepPoint()->GetPosition().z()/km) + 500.0;
   
-  // Kick out particles outside the range of altitudes we care about
-  bool preStepInRange = (preStepAlt_km <= fRunAction->fMaxSampleAltitude_km) && (preStepAlt_km >= fRunAction->fMinSampleAltitude_km);
-  bool postStepInRange = (postStepAlt_km <= fRunAction->fMaxSampleAltitude_km) && (postStepAlt_km >= fRunAction->fMinSampleAltitude_km);
+  // Get altitude indices (float) of start and stop point
+  G4double preStepAltitudeIndex = (preStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
+  G4double postStepAltitudeIndex = (postStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
+
+  // Kick out if step is entirely outside the altitudes we care about
+  bool preStepInRange = (0 <= preStepAltitudeIndex) && (preStepAltitudeIndex < (fRunAction->fNumberOfSamplePlanes-1));
+  bool postStepInRange = (0 <= postStepAltitudeIndex) && (postStepAltitudeIndex < (fRunAction->fNumberOfSamplePlanes-1));
   if( (preStepInRange == false) && (postStepInRange == false) ){ return; }
 
-
-
-
-  //int n_planes_crossed = 0;
-
-
-
-
-  // Loop over every sample altitude and see if this particle has crossed that plane
-  for(int altitudeIndex = 0; altitudeIndex <  fRunAction->fNumberOfSamplePlanes; altitudeIndex++){
-    bool crossedPlane = (preStepAlt_km > fRunAction->sampleAltitudes_km[altitudeIndex]) != (postStepAlt_km > fRunAction->sampleAltitudes_km[altitudeIndex]);
-    if( crossedPlane == false ){continue;} // Don't proceed if we haven't crossed the plane
+  // Kick out if we are in range but haven't crossed any planes
+  if( std::floor(preStepAltitudeIndex) == std::floor(postStepAltitudeIndex)){ return; }
   
-    /*
-    n_planes_crossed++;
-    if(n_planes_crossed > 1){
-      G4cout << "Crossed " << n_planes_crossed << " planes." << G4endl;
-    }
-    */
+  // Get bounding indices of planes that have been crossed
+  int startIdx = std::ceil(std::min(preStepAltitudeIndex, postStepAltitudeIndex));
+  int stopIdx = std::floor(std::max(preStepAltitudeIndex, postStepAltitudeIndex));
 
-    // Get energy at plane crossing point
-    G4double crossingEnergy = postStepKineticEnergy;
+  // Safety check
+  if(startIdx > stopIdx){ G4cout << "Failed safety check. You shouldn't see this." << G4endl; throw; }
 
-    // If it's not safe to use pre- and post- kinetic energy interchangably, do an interpolation to get approximate energy at the plane crossing.
-    if( std::abs((postStepKineticEnergy - preStepKineticEnergy)/preStepKineticEnergy) > 1e-3 ){
-      G4double t = (fRunAction->sampleAltitudes_km[altitudeIndex] - preStepAlt_km) / (postStepAlt_km - preStepAlt_km);
-      crossingEnergy = preStepKineticEnergy + (t * (postStepKineticEnergy - preStepKineticEnergy)); // Linear interpolation
-    }
+  // Loop over crossed planes and add to energy spectra
+  for(int altitudeIndex = startIdx; altitudeIndex <= stopIdx; altitudeIndex++){
+    // Do an interpolation to get approximate energy at the plane crossing
+    G4double t = (fRunAction->sampleAltitudes_km[altitudeIndex] - preStepAlt_km) / (postStepAlt_km - preStepAlt_km);
+    G4double crossingEnergy = preStepKineticEnergy + (t * (postStepKineticEnergy - preStepKineticEnergy)); // Linear interpolation
 
-    // Find the energy bin this particle resides in. Do NOT do a comparison to every bin - utilize the fact that bins are logspaced
-    // to directly calculate the index.
+    // Find the energy bin this particle resides in utilizing regular spacing to directly calculate the index.
     int energyIndex = std::floor(logbase(fRunAction->histogramFactor, (crossingEnergy/keV)/(fRunAction->fEnergyMinkeV)));
     if( (energyIndex < 0) || (energyIndex > (fRunAction->fNumberOfEnergyBins-1)) ){
       continue; // Don't record energy if particle energy is out of range of histogram
@@ -158,12 +148,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     if(particleName == "proton"){fRunAction->protonCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
     if(particleName == "gamma") {fRunAction->gammaCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
     if(particleName == "alpha") {fRunAction->alphaCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
-    
-    // If the particle's altitude change is less than half the space between altitude planes, it is not possible to have crossed
-    // multiple planes in this step and we can thus break the loop for speed.
-    if( std::abs(postStepAlt_km - postStepAlt_km) < fRunAction->altitudeSpacing_km/2){
-      break;
-    }
   }
 }
 

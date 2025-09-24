@@ -14,6 +14,9 @@
     #/process/em/deexcitationIgnoreCut false
     #/cuts/setMaxCutEnergy 50 eV
 
+# Set global range cut
+/run/setCut 1 mm
+
 # Set filename for atmosphere composition table
     /dataCollection/setAtmosFileName MSISE00_atmosphere.csv 
 

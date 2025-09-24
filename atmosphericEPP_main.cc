@@ -117,8 +117,8 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(physicsList);
   runManager->SetUserInitialization(new ActionInitialization());
 
-  G4double lowLimit = 250. * eV;
-  G4double highLimit = 100. * GeV;
+  G4double lowLimit = 250.0 * eV;
+  G4double highLimit = 100.0 * GeV;
   G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowLimit, highLimit);
 
   // Suppress large verbosity from EM & hadronic processes
