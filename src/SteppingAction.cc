@@ -116,23 +116,62 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double preStepAltitudeIndex = (preStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
   G4double postStepAltitudeIndex = (postStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
 
+
+
+
+
+
+
+
+
+
+
+  /*
+  if((particleName == "gamma") && (postStepKineticEnergy/keV < 6) && (std::abs(std::floor(preStepAlt_km) - preStepAlt_km) < .01) ){
+
+    G4cout << track->GetTrackID() << " (" << track->GetCurrentStepNumber() << ")" << G4endl 
+      << "\t" << preStepAlt_km << " km -> " << postStepAlt_km << " km" << G4endl
+      << "\t" << preStepKineticEnergy/keV << " keV -> " << preStepKineticEnergy/keV << " keV"
+    << G4endl;
+
+
+    // ping transitions
+    if( (step->GetPreStepPoint()->GetPhysicalVolume() != step->GetPostStepPoint()->GetPhysicalVolume()) )
+    {
+      G4cout << track->GetTrackID() << " meow!!!!!" << G4endl ;
+    }
+  }
+
+  */
+
+
+
+
+
+
+
+
+
+
+
+
   // Kick out if step is entirely outside the altitudes we care about
   bool preStepInRange = (0 <= preStepAltitudeIndex) && (preStepAltitudeIndex < (fRunAction->fNumberOfSamplePlanes-1));
   bool postStepInRange = (0 <= postStepAltitudeIndex) && (postStepAltitudeIndex < (fRunAction->fNumberOfSamplePlanes-1));
   if( (preStepInRange == false) && (postStepInRange == false) ){ return; }
-
-  // Kick out if we are in range but haven't crossed any planes
-  if( std::floor(preStepAltitudeIndex) == std::floor(postStepAltitudeIndex)){ return; }
   
   // Get bounding indices of planes that have been crossed
   int startIdx = std::ceil(std::min(preStepAltitudeIndex, postStepAltitudeIndex));
   int stopIdx = std::floor(std::max(preStepAltitudeIndex, postStepAltitudeIndex));
 
-  // Safety check
-  if(startIdx > stopIdx){ G4cout << "Failed safety check. You shouldn't see this." << G4endl; throw; }
-
+  // Kick out particles that didn't cross any planes
+  if(startIdx > stopIdx){return;}
+  
   // Loop over crossed planes and add to energy spectra
   for(int altitudeIndex = startIdx; altitudeIndex <= stopIdx; altitudeIndex++){
+    // Kick out invalid indices
+    if( (altitudeIndex < 0) || (altitudeIndex > (fRunAction->fNumberOfSamplePlanes-1)) ){continue;}
+
     // Do an interpolation to get approximate energy at the plane crossing
     G4double t = (fRunAction->sampleAltitudes_km[altitudeIndex] - preStepAlt_km) / (postStepAlt_km - preStepAlt_km);
     G4double crossingEnergy = preStepKineticEnergy + (t * (postStepKineticEnergy - preStepKineticEnergy)); // Linear interpolation

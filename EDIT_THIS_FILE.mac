@@ -23,10 +23,7 @@
     /control/alias G4EPP_BUILD_DIR /Users/luna/Research/geant4/Aviation_G4EPP/build
 
 # Starting altitude of particles in the simulation. Units: [km]
-    /control/alias STARTING_ALTITUDE_KM 449.5
-
-# Altitude to record and kill upgoing particles at. Units: [km]
-    /control/alias RECORDING_ALTITUDE_KM 450.5
+    /control/alias STARTING_ALTITUDE_KM 450
 
 # Magnetic latitude of the injection point. Units: [deg]
     /control/alias MLAT_DEGREES 45

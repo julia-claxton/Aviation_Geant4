@@ -8,8 +8,8 @@ particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = p
 
 # Create energy and pitch angle lists
 energy_kev_min = 1_000       # Minimum beam energy, keV
-energy_kev_max = 100_000     # Maximum beam energy, keV
-energy_nbeams = 100          # Number of log-spaced beams to place between minimum and maximum energy
+energy_kev_max = 500_000     # Maximum beam energy, keV
+energy_nbeams = 150          # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
 
@@ -52,7 +52,7 @@ for E in energies_to_simulate
   ./aviation_G4EPP $(number_of_particles) $(particle) $(energy_string)
 
   # Copy results to safe folder
-  cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_45deg_input_449.5km_record_450.5km/$(input_particle_longname)_input_$(energy_string)keV_$(number_of_particles)particles_*_spectra.csv /projects/jucl6426/Aviation_G4EPP/results
+  cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_45deg_input_450km/$(input_particle_longname)_input_$(energy_string)keV_$(number_of_particles)particles_*_spectra.csv /projects/jucl6426/Aviation_G4EPP/results
   """
   )
   close(file)

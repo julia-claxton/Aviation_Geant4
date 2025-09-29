@@ -19,5 +19,5 @@ cd /projects/jucl6426/Aviation_G4EPP/build/
 ./aviation_G4EPP 100000 proton 1000.0
 
 # Copy results to safe folder
-cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_45deg_input_449.5km_record_450.5km/proton_input_1000.0keV_100000particles_*_spectra.csv /projects/jucl6426/Aviation_G4EPP/results
+cp /projects/jucl6426/Aviation_G4EPP/build/results/mlat_45deg_input_450km/proton_input_1000.0keV_100000particles_*_spectra.csv /projects/jucl6426/Aviation_G4EPP/results
 

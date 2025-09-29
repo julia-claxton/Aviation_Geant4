@@ -71,13 +71,13 @@ class RunAction : public G4UserRunAction
 
   public:
     // Histogram limits
-    static constexpr G4double fMinSampleAltitude_km = 0;
-    static constexpr G4double fMaxSampleAltitude_km = 100;
+    static constexpr G4double fMinSampleAltitude_km = 0.05;
+    static constexpr G4double fMaxSampleAltitude_km = 100.05;
     static constexpr G4int fNumberOfSamplePlanes = 1001; // Has very little impact on runtime due to regular spacing
 
     static constexpr G4double fEnergyMinkeV = 1e-2; // Minimum energy in the simulation
     static constexpr G4double fEnergyMaxkeV = 10e6; // 10 GeV, maximum energy for NIST proton stopping power tables
-    static constexpr G4int fNumberOfEnergyBins = 300;
+    static constexpr G4int fNumberOfEnergyBins = 300; // Has very little impact on runtime due to regular spacing
 
     // Axis labels
     std::vector<G4double> sampleAltitudes_km;

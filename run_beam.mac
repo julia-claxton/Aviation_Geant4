@@ -45,7 +45,7 @@
 
 # Set result filepaths
     /control/shell if [ ! -d {G4EPP_BUILD_DIR} ]; then echo "** ERROR: Specified build directory {G4EPP_BUILD_DIR} does not exist. Set the correct build directory in EDIT_THIS_FILE.mac"; killall G4EPP; fi
-    /control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results/mlat_{MLAT_DEGREES}deg_input_{STARTING_ALTITUDE_KM}km_record_{RECORDING_ALTITUDE_KM}km
+    /control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results/mlat_{MLAT_DEGREES}deg_input_{STARTING_ALTITUDE_KM}km
     /control/shell if [ ! -d {RESULTS_DIR} ]; then mkdir {RESULTS_DIR}; fi 
         # Make results directory if it does not exist. Otherwise do nothing.
 
@@ -55,8 +55,6 @@
 
 # Set beam parameters
     /beamParameters/setParticleStartingAltitude {STARTING_ALTITUDE_KM}
-    /dataCollection/setCollectionAltitude {RECORDING_ALTITUDE_KM}
-
     /beamParameters/setBeamParticle {BEAM_PARTICLE}
     /beamParameters/setBeamEnergy {BEAM_ENERGY_KEV}
     /fieldParameters/setMLAT {MLAT_DEGREES}
