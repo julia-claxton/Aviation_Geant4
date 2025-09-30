@@ -7,8 +7,8 @@ number_of_particles = 100_000  # Number of particles to input
 particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
-energy_kev_min = 1_000       # Minimum beam energy, keV
-energy_kev_max = 500_000     # Maximum beam energy, keV
+energy_kev_min = 500_000 #1_000       # Minimum beam energy, keV
+energy_kev_max = 100_000_000 #500_000     # Maximum beam energy, keV
 energy_nbeams = 150          # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
