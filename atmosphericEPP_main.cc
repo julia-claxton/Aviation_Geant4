@@ -25,15 +25,15 @@
 //
 
 /*
-# To build the G4EPP executable: (in zsh)
-cd path/to/G4EPP-build # You'll need to create this directory if it doesn't exist already
-rm -r /path/to/G4EPP-build/ *  # Remove space between / and * at the end before running (C++ gets angry if there's a slash-star in a block comment). Removes any existing files or old builds
-cmake -DCMAKE_INSTALL_PREFIX="/path/to/geant4-install" -DGeant4_DIR="/path/to/geant4-install/lib" /path/to/G4EPP-source
+# To build the GLYPHS executable: (in zsh)
+cd path/to/GLYPHS-build # You'll need to create this directory if it doesn't exist already
+rm -r /path/to/GLYPHS-build/ *  # Remove space between / and * at the end before running (C++ gets angry if there's a slash-star in a block comment). Removes any existing files or old builds
+cmake -DCMAKE_INSTALL_PREFIX="/path/to/geant4-install" -DGeant4_DIR="/path/to/geant4-install/lib" /path/to/GLYPHS-source
 make # Build executable
 chmod +x ./RUN_ALL.sh # Make the runall script executable by anyone
 
 # To run the simulation
-./G4EPP <PARTICLE NAME> <BEAM ENERGY IN KEV> <BEAM PITCH ANGLE IN DEG>
+./GLYPHS <PARTICLE NAME> <BEAM ENERGY IN KEV> <BEAM PITCH ANGLE IN DEG>
 # or
 ./RUN_ALL.sh
 */
@@ -80,7 +80,7 @@ int main(int argc,char** argv)
   // Error out if we don't get those
   if(argc != 4)
   {
-    std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 3 required. Format: ./G4EPP <number of particles> <particle name> <particle energy>" << std::endl;
+    std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 3 required. Format: ./GLYPHS <number of particles> <particle name> <particle energy>" << std::endl;
     throw;
   }
   

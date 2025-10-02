@@ -102,7 +102,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
     std::filesystem::path buildDirectory = resultsPath.parent_path().parent_path();
     if(std::filesystem::is_directory(buildDirectory) == false)
     {
-      G4cerr << G4endl << "*** ERROR: User-specified build directory " << buildDirectory << " does not exist. This path is user-specified in set_simulation_parameters.mac. Check that G4EPP_BUILD_DIR in set_simulation_parameters.mac matches your build directory and does not have a slash at the end." << G4endl << G4endl;
+      G4cerr << G4endl << "*** ERROR: User-specified build directory " << buildDirectory << " does not exist. This path is user-specified in set_simulation_parameters.mac. Check that GLYPHS_BUILD_DIR in set_simulation_parameters.mac matches your build directory and does not have a slash at the end." << G4endl << G4endl;
       throw;
     }
   }

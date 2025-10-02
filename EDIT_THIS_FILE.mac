@@ -7,20 +7,20 @@
 # /control/alias variable_name variable_value
 #
 # Beam parameters (e.g. energy, pitch angle, etc), are
-# controlled via command line arguments to G4EPP in
+# controlled via command line arguments to GLYPHS in
 # the following format:
-# ./G4EPP number_of_particles particle_type beam_energy_keV beam_pitch_angle_deg
+# ./GLYPHS number_of_particles particle_type beam_energy_keV beam_pitch_angle_deg
 # With <particle_type> chosen from e-, proton, gamma,
 # or another Geant4 particle name.
 #
 # ==================================================
 
-# Directory that you built/will build G4EPP in. Houses the executable, results folder,
+# Directory that you built/will build GLYPHS in. Houses the executable, results folder,
 # and buildfiles. Do not include a slash at the end or else it won't interpret correctly.
 # There is no platform-independent way to incorporate this into the code so we have to 
 # type it in manually.
-    /control/alias G4EPP_BUILD_DIR /projects/jucl6426/Aviation_G4EPP/build
-    #/control/alias G4EPP_BUILD_DIR /Users/luna/Research/geant4/Aviation_G4EPP/build
+    /control/alias GLYPHS_BUILD_DIR /projects/jucl6426/Aviation_GLYPHS/build
+    #/control/alias GLYPHS_BUILD_DIR /Users/luna/Research/geant4/Aviation_GLYPHS/build
 
 # Starting altitude of particles in the simulation. Units: [km]
     /control/alias STARTING_ALTITUDE_KM 450

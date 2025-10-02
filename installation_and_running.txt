@@ -57,40 +57,40 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 
 ###############################################
 #
-# START FROM HERE IF BUILDING G4EPP FROM SOURCE
+# START FROM HERE IF BUILDING GLYPHS FROM SOURCE
 # ALWAYS DO THIS BEFORE QUEUEING JOB!
 #
 ###############################################
 
 # Download source code if source does not exist:
-cd /projects/$USER/G4EPP
+cd /projects/$USER/GLYPHS
 
 # If source already exists, pull latest version:
-if [ -d "/projects/$USER/G4EPP/source" ]; then
+if [ -d "/projects/$USER/GLYPHS/source" ]; then
     cd source
     git reset --hard origin/main
     git pull
 else
-    git clone https://github.com/julia-claxton/g4epp-source.git
-    mv g4epp-source source
+    git clone https://github.com/julia-claxton/GLYPHS-source.git
+    mv GLYPHS-source source
 fi
 
 # Create/reset build directory
-cd /projects/$USER/G4EPP
-if [ -d "/projects/$USER/G4EPP/build" ]; then
-  rm -r /projects/$USER/G4EPP/build
+cd /projects/$USER/GLYPHS
+if [ -d "/projects/$USER/GLYPHS/build" ]; then
+  rm -r /projects/$USER/GLYPHS/build
 else
-  mkdir /projects/$USER/G4EPP/build
+  mkdir /projects/$USER/GLYPHS/build
 fi
 
 # Build executable
 cd build
-cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/projects/$USER/geant4/install/lib64" "/projects/$USER/G4EPP/source"
+cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/projects/$USER/geant4/install/lib64" "/projects/$USER/GLYPHS/source"
 make
 
 # Make batch scripts executable
-chmod +x /projects/jucl6426/G4EPP/source/supercomputing_batch.sh
-chmod +x /projects/jucl6426/G4EPP/build/supercomputing_batch.sh
+chmod +x /projects/jucl6426/GLYPHS/source/supercomputing_batch.sh
+chmod +x /projects/jucl6426/GLYPHS/build/supercomputing_batch.sh
 
 
 
@@ -102,10 +102,10 @@ chmod +x /projects/jucl6426/G4EPP/build/supercomputing_batch.sh
 #
 ###############################################
 
-/projects/$USER/build_g4epp.sh
-    # Build G4EPP
+/projects/$USER/build_GLYPHS.sh
+    # Build GLYPHS
 
-cd /projects/$USER/G4EPP/build
+cd /projects/$USER/GLYPHS/build
 module load slurm/blanca
 sbatch supercomputing_batch.sh # Add job to queue
 watchq # Watch job
