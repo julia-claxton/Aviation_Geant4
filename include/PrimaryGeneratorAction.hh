@@ -52,11 +52,14 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
     PrimaryGeneratorAction();    
-    virtual ~PrimaryGeneratorAction();
+    virtual ~PrimaryGeneratorAction(); 
 
     // method from the base class
     virtual void GeneratePrimaries(G4Event*);         
     
+    // My methods
+    std::vector<G4double> randDowngoingDirection();
+
     // Messenger methods
     void SetBeamEnergy(G4double energy){ fBeamEnergy = energy;};
     void SetBeamPitchAngle(G4double pitchAngle){fBeamPitchAngle = pitchAngle; };

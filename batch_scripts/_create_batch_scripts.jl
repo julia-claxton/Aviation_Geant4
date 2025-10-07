@@ -12,9 +12,9 @@ number_of_particles = 100_000  # Number of particles to input
 particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
-energy_kev_min = 500_000 #1_000       # Minimum beam energy, keV
-energy_kev_max = 100_000_000 #500_000     # Maximum beam energy, keV
-energy_nbeams = 150          # Number of log-spaced beams to place between minimum and maximum energy
+energy_kev_min = 100_000       # Minimum beam energy, keV
+energy_kev_max = 100_000_000   # Maximum beam energy, keV
+energy_nbeams = 150            # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
 
@@ -31,9 +31,9 @@ for E in energies_to_simulate
   time_limit = "1-00:00:00"
 
   # Don't simulate if we already have data for a given beam
-  if E in beam_energies_keV
-    global skipped += 1
-    continue
+  if E ≥ 10_000_000
+    qos = "blanca-lair"
+    time_limit = "7-00:00:00"
   end
 
   file = open("$(@__DIR__)/$(job_name).sh", "w")

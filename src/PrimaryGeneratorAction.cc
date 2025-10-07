@@ -87,53 +87,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   r->yPos = 0;
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
-  /*
-  // Set velocity. Starts electrons with gyromotion about field line at a given pitch angle.
-  G4double pitchAngle = fBeamPitchAngle * 3.14159265359 / 180.0; // Convert degrees to radians
-  G4double gyroPhase  = G4UniformRand() * 2. * fPI;
+  // Isotropic downgoing incidence - choose point on downgoing unit hemisphere for momentum
+  std::vector<G4double> momentum = randDowngoingDirection();
+  r->xDir = momentum.at(0);
+  r->yDir = momentum.at(1);
+  r->zDir = momentum.at(2);
 
-  // Initial momentum direction of particles in local frame of magnetic field (i.e B is parallel to -z)
-  double vx0 = std::sin(pitchAngle)*std::cos(gyroPhase);
-  double vy0 = std::sin(pitchAngle)*std::sin(gyroPhase);
-  double vz0 = -std::cos(pitchAngle);
-  
-  // Now we need to rotate out of inclined B-field frame into the world frame.
-  // B lies in the y-z plane, meaning we need to rotate about the x-axis to get into the world coordinates.
-  
-  // Get B vector
-  G4double spacetimePoint[4] = {r->xPos, r->xPos, r->zPos, 0};
-  G4double emComponents[6];
-
-  G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
-  fieldManager->GetDetectorField()->GetFieldValue(spacetimePoint, emComponents);
-  G4double B[3] = {emComponents[0], emComponents[1], emComponents[2]};
-  G4double normB = std::sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
-  
-  // Get necessary tilt angle
-  G4double tilt_angle_rad = std::acos(std::abs(B[2]/normB));
-
-  // Rotate coordinates into world frame
-  r->xDir = vx0;
-  r->yDir = (std::cos(tilt_angle_rad) * vy0) - (std::sin(tilt_angle_rad) * vz0);
-  r->zDir = (std::sin(tilt_angle_rad) * vy0) + (std::cos(tilt_angle_rad) * vz0);
-
-  // Verify that pitch angle generation is correct
-  double normMomentum = std::sqrt(pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2));
-  double dotProd = (r->xDir * B[0]) + (r->yDir * B[1]) + (r->zDir * B[2]);
-  double generatedPitchAngle_deg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
-
-  if( abs(generatedPitchAngle_deg - fBeamPitchAngle) > 1){
-    G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
-    throw;
-  }
-  */
-
-  // Send particles straight down: perpendicular incidence
-  r->xDir = 0;
-  r->yDir = 0;
-  r->zDir = -1;
-
-  // Communicate to particle gun
+  // Communicate parameters to particle gun
   fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(r->xDir, r->yDir, r->zDir));
   fParticleGun->SetParticleEnergy(r->energy);
@@ -145,4 +105,29 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   delete r;
 }
 
+std::vector<G4double> PrimaryGeneratorAction::randDowngoingDirection(){
+  // Use rejection sampling to generate point on the downgoing unit hemisphere
+  while(true){
+    G4double x = (2 * G4UniformRand()) - 1; // [-1, 1]
+    G4double y = (2 * G4UniformRand()) - 1; // [-1, 1]
+    G4double z = (1 * G4UniformRand()) - 1; // [-1, 0] Only look in the downgoing hemisphere
 
+    G4double radius = std::sqrt( (x*x) + (y*y) + (z*z) );
+
+    if( (radius <= 1) && (radius > 0) ){
+      x /= radius;
+      y /= radius;
+      z /= radius;
+
+      // Safety check
+      if( std::abs(1 - std::sqrt((x*x) + (y*y) + (z*z))) > 1e-12 ){
+        G4cout << "You should never ever ever ever see this." << G4endl;
+        G4cout << "(x, y, z) = (" << x << ", " << y << ", " << z << ")" << G4endl;
+        throw;
+      }
+
+      // Return breaks the while(true) loop
+      return std::vector<G4double> {x, y, z};
+    }
+  }
+}
