@@ -71,8 +71,8 @@ class RunAction : public G4UserRunAction
 
   public:
     // Histogram limits
-    static constexpr G4double fMinSampleAltitude_km = 0.05;
-    static constexpr G4double fMaxSampleAltitude_km = 100.05;
+    static constexpr G4double fMinSampleAltitude_km = 0.0;
+    static constexpr G4double fMaxSampleAltitude_km = 100.0;
     static constexpr G4int fNumberOfSamplePlanes = 1001; // Has very little impact on runtime due to regular spacing
 
     static constexpr G4double fEnergyMinkeV = 1e-2; // Minimum energy in the simulation

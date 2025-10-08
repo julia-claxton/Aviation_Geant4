@@ -190,16 +190,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   );
   
   // Layers are the size needed to fill the 1000 km column
-  G4double layerThickness = ( int(1000 / tableSize) )*km-1.*um;
+  G4double layerThickness = (1000.0 / tableSize) * km;
   G4double layerLocation;
   
   G4Tubs* atmosphereLayer = new G4Tubs(
-    "AtmosphereLayer",
-    0.,
-    world_sizeXY-1.*mm,
-    0.5*layerThickness-1.*mm,
-		0.,
-		360.*deg
+    "AtmosphereLayer",                 // its name
+    0.,                                // inner radius
+    world_sizeXY-1.*mm,                // outer radius
+    (0.5*layerThickness) - (0.5*um),   // z half length
+		0.,                                // starting phi
+		360.*deg                           // segment angle
   );
 
   G4Material*      layerMaterial;
@@ -313,16 +313,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     );
 
     layerLocation = (i-fTableSize/2)*layerThickness + layerThickness/2.;
-    
+
     new G4PVPlacement(
-      0,
-		  G4ThreeVector(0., 0., layerLocation),
-		  logicLayer,
-		  "AtmosphereLayer"+std::to_string(i),
-		  fLogicWorld,
-		  false,
-		  i,
-		  checkOverlaps
+      0,                                     // rotation
+		  G4ThreeVector(0., 0., layerLocation),  // location
+		  logicLayer,                            // its logical volume
+		  "AtmosphereLayer"+std::to_string(i),   // its name
+		  fLogicWorld,                           // its mother volume
+		  false,                                 // no boolean operation
+		  i,                                     // copy number
+		  checkOverlaps                          // overlaps checking
     );
   }
   

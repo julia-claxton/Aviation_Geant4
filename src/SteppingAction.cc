@@ -63,6 +63,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Dividing by a unit outputs data in that unit, so divisions by keV result in outputs in keV
   // https://geant4-internal.web.cern.ch/sites/default/files/geant4/collaboration/working_groups/electromagnetic/gallery/units/SystemOfUnits.html
   G4Track* track = step->GetTrack();
+  const G4int trackID = track->GetTrackID();
   const G4ThreeVector position = track->GetPosition();
   const G4ThreeVector momentumDirection = track->GetMomentumDirection();
   const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
@@ -96,7 +97,21 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Begin Data Logging
   // ===========================
   // Energy Spectrum Tracking
+
+
+
+
+
+
+  if(particleName != "gamma"){track->SetTrackStatus(fStopAndKill);}
   
+
+
+
+
+
+
+
   // Get altitude information
   G4double preStepAlt_km  = (step->GetPreStepPoint()->GetPosition().z()/km) + 500.0;
   G4double postStepAlt_km = (step->GetPostStepPoint()->GetPosition().z()/km) + 500.0;
@@ -114,6 +129,30 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   int startIdx = std::ceil(std::min(preStepAltitudeIndex, postStepAltitudeIndex));
   int stopIdx = std::floor(std::max(preStepAltitudeIndex, postStepAltitudeIndex));
 
+
+
+
+
+
+
+
+
+
+  G4cout.precision(15);
+  G4double dz = std::abs(postStepAlt_km - preStepAlt_km);
+  if(dz < 0.5){
+    G4cout << std::fixed << "(" << trackID << ") " << preStepAlt_km << " -> " << postStepAlt_km << ", dz = " << dz << ", idxs = " << startIdx << " -> " << stopIdx << G4endl;
+  }
+
+
+  
+
+  
+
+
+
+
+
   // Kick out particles that didn't cross any planes
   if(startIdx > stopIdx){return;}
   
@@ -121,6 +160,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   for(int altitudeIndex = startIdx; altitudeIndex <= stopIdx; altitudeIndex++){
     // Kick out invalid indices
     if( (altitudeIndex < 0) || (altitudeIndex > (fRunAction->fNumberOfSamplePlanes-1)) ){continue;}
+    G4cout << "logging " << altitudeIndex << G4endl;
+
+
 
     // Do an interpolation to get approximate energy at the plane crossing
     G4double t = (fRunAction->sampleAltitudes_km[altitudeIndex] - preStepAlt_km) / (postStepAlt_km - preStepAlt_km);
