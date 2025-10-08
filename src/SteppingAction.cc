@@ -43,18 +43,7 @@
 #include "G4TransportationManager.hh"
 #include "G4FieldManager.hh"
 #include "G4MagneticField.hh"
-
-
-
-
-
-#include <iostream>
 #include <chrono>
-
-
-
-
-
 
 SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 : G4UserSteppingAction(),
@@ -115,45 +104,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Get altitude indices (float) of start and stop point
   G4double preStepAltitudeIndex = (preStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
   G4double postStepAltitudeIndex = (postStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
-
-
-
-
-
-
-
-
-
-
-
-  /*
-  if((particleName == "gamma") && (postStepKineticEnergy/keV < 6) && (std::abs(std::floor(preStepAlt_km) - preStepAlt_km) < .01) ){
-
-    G4cout << track->GetTrackID() << " (" << track->GetCurrentStepNumber() << ")" << G4endl 
-      << "\t" << preStepAlt_km << " km -> " << postStepAlt_km << " km" << G4endl
-      << "\t" << preStepKineticEnergy/keV << " keV -> " << preStepKineticEnergy/keV << " keV"
-    << G4endl;
-
-
-    // ping transitions
-    if( (step->GetPreStepPoint()->GetPhysicalVolume() != step->GetPostStepPoint()->GetPhysicalVolume()) )
-    {
-      G4cout << track->GetTrackID() << " meow!!!!!" << G4endl ;
-    }
-  }
-
-  */
-
-
-
-
-
-
-
-
-
-
-
 
   // Kick out if step is entirely outside the altitudes we care about
   bool preStepInRange = (0 <= preStepAltitudeIndex) && (preStepAltitudeIndex < (fRunAction->fNumberOfSamplePlanes-1));
