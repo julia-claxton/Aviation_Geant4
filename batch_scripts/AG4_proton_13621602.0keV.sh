@@ -3,10 +3,10 @@
 #SBATCH --job-name AG4_proton_13621602.0keV
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 7-00:00:00
+#SBATCH --time 1-00:00:00
 #SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_AG4_proton_13621602.0keV.out
-#SBATCH --qos=blanca-lair
-#SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
+#SBATCH --qos=preemptable
+#SBATCH --exclude=bhpc-c5-u7-19,bhpc-c5-u7-22,bhpc-c5-u7-23
 #SBATCH --requeue
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu

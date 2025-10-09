@@ -3,7 +3,7 @@ using Glob
 using Printf
 
 include("/Users/luna/Research/Aviation_Radiation/code/SpectrumParser.jl")
-results_dir = "/Users/luna/Research/Aviation_Radiation/data/GLYPHS"
+results_dir = "/Users/luna/Research/geant4/Aviation_GLYPHS/results"
 beam_particles, beam_energies_keV = get_beams(results_dir)
 
 
@@ -31,9 +31,14 @@ for E in energies_to_simulate
   time_limit = "1-00:00:00"
 
   # Don't simulate if we already have data for a given beam
-  if E ≥ 10_000_000
+  if E ≥ 50_000_000
     qos = "blanca-lair"
     time_limit = "7-00:00:00"
+  end
+
+  if E in beam_energies_keV
+    global skipped += 1
+    continue
   end
 
   file = open("$(@__DIR__)/$(job_name).sh", "w")
@@ -47,7 +52,7 @@ for E in energies_to_simulate
   #SBATCH --time $(time_limit)
   #SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_$(job_name).out
   #SBATCH --qos=$(qos)
-  #SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
+  #SBATCH --exclude=bhpc-c5-u7-19,bhpc-c5-u7-22,bhpc-c5-u7-23
   #SBATCH --requeue
   #SBATCH --mail-type=ALL
   #SBATCH --mail-user=jucl6426@colorado.edu
