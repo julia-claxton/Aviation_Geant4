@@ -6,7 +6,6 @@ include("/Users/luna/Research/Aviation_Radiation/code/SpectrumParser.jl")
 results_dir = "/Users/luna/Research/geant4/Aviation_GLYPHS/results"
 beam_particles, beam_energies_keV = get_beams(results_dir)
 
-
 number_of_particles = 100_000  # Number of particles to input
 
 particle = "proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
@@ -30,12 +29,13 @@ for E in energies_to_simulate
   qos = "preemptable"
   time_limit = "1-00:00:00"
 
-  # Don't simulate if we already have data for a given beam
+  # Send long-runtime beams to blanca-lair
   if E ≥ 50_000_000
     qos = "blanca-lair"
     time_limit = "7-00:00:00"
   end
-
+  
+  # Don't simulate if we already have data for a given beam
   if E in beam_energies_keV
     global skipped += 1
     continue
