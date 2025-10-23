@@ -6,37 +6,20 @@ include("/Users/luna/Research/Aviation_Radiation/code/SpectrumParser.jl")
 results_dir = "/Users/luna/Research/geant4/Aviation_GLYPHS/results"
 beam_particles, beam_energies_keV = get_beams(results_dir)
 
-number_of_particles = 100_000  # Number of particles to input
+number_of_particles = 1_000_000  # Number of particles to input
 
-particle = "e-" #"proton"          # "e-" = electrons, "proton" = protons, "gamma" = photons
+particle = "e-" # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
+#=
 energy_kev_min = 100_000       # Minimum beam energy, keV
 energy_kev_max = 100_000_000   # Maximum beam energy, keV
 energy_nbeams = 150            # Number of log-spaced beams to place between minimum and maximum energy
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
+=#
 
-
-
-
-
-
-
-
-
-
-@warn "undo e- changes"
-energies_to_simulate = 10_000 # XXX TEMP
-
-
-
-
-
-
-
-
-
+energies_to_simulate = [63.0, 98.0, 139.0, 183.0, 238.0, 305.0, 385.0, 520.0, 753.0, 1082.0, 1530.0, 2121.0, 2894.0, 3729.0, 4906.0, 6500.0, 10000.0, 50000.0]
 
 
 # Create shell scripts
@@ -50,6 +33,7 @@ for E in energies_to_simulate
   job_name = "AG4_$(input_particle_longname)_$(energy_string)keV"
   qos = "preemptable"
   time_limit = "1-00:00:00"
+
 
   # Send long-runtime beams to blanca-lair
   if E ≥ 50_000_000

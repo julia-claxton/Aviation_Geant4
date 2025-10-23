@@ -88,11 +88,38 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
   // Isotropic downgoing incidence - choose point on downgoing unit hemisphere for momentum
-  std::vector<G4double> momentum = randDowngoingDirection();
-  r->xDir = momentum.at(0);
-  r->yDir = momentum.at(1);
-  r->zDir = momentum.at(2);
+  //std::vector<G4double> momentum = randDowngoingDirection();
+  G4double vx0 = 0; //momentum.at(0);
+  G4double vy0 = 0; //momentum.at(1);
+  G4double vz0 = -1; //momentum.at(2);
 
+  // Get B vector to rotate velocity to be isotropic downgoing in pitch angle rather than in worldspace
+  G4double spacetimePoint[4] = {r->xPos, r->xPos, r->zPos, 0};
+  G4double emComponents[6];
+
+  G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+  fieldManager->GetDetectorField()->GetFieldValue(spacetimePoint, emComponents);
+  G4double B[3] = {emComponents[0], emComponents[1], emComponents[2]};
+  G4double normB = std::sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
+  
+  // Get necessary tilt angle
+  G4double tilt_angle_rad = std::acos(std::abs(B[2]/normB));
+
+  // Rotate coordinates into world frame
+  r->xDir = vx0;
+  r->yDir = (std::cos(tilt_angle_rad) * vy0) - (std::sin(tilt_angle_rad) * vz0);
+  r->zDir = (std::sin(tilt_angle_rad) * vy0) + (std::cos(tilt_angle_rad) * vz0);
+
+  // Verify that pitch angle generation is correct
+  double normMomentum = std::sqrt(pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2));
+  double dotProd = (r->xDir * B[0]) + (r->yDir * B[1]) + (r->zDir * B[2]);
+  double generatedPitchAngle_deg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
+
+  if( generatedPitchAngle_deg > 1){
+    G4cout << "** ERROR: Primary generated with incorrect pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
+    throw;
+  }
+  
   // Communicate parameters to particle gun
   fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(r->xDir, r->yDir, r->zDir));

@@ -101,7 +101,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Get altitude information
   G4double preStepAlt_km  = (step->GetPreStepPoint()->GetPosition().z()/km) + 500.0;
   G4double postStepAlt_km = (step->GetPostStepPoint()->GetPosition().z()/km) + 500.0;
-  
+
   // Get altitude indices (float) of start and stop point
   G4double preStepAltitudeIndex = (preStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
   G4double postStepAltitudeIndex = (postStepAlt_km -  fRunAction->fMinSampleAltitude_km) / fRunAction->altitudeSpacing_km;
@@ -135,9 +135,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     
     // Add count to histogram based on particle type
     if(particleName == "e-")    {fRunAction->electronCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
-    if(particleName == "proton"){fRunAction->protonCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
-    if(particleName == "gamma") {fRunAction->gammaCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
-    if(particleName == "alpha") {fRunAction->alphaCounts[altitudeIndex][energyIndex] += 1 * trackWeight;}
+    if(particleName == "proton"){fRunAction->protonCounts[altitudeIndex][energyIndex]   += 1 * trackWeight;}
+    if(particleName == "gamma") {fRunAction->gammaCounts[altitudeIndex][energyIndex]    += 1 * trackWeight;}
+    if(particleName == "alpha") {fRunAction->alphaCounts[altitudeIndex][energyIndex]    += 1 * trackWeight;}
   }
 }
 

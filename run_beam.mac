@@ -41,7 +41,8 @@
 # E.g.,
 # /process/em/setSecBiasing eBrem world 100 100 MeV
 # for 100x increase of Bremsstrahlung photons under 100 MeV
-    #/process/em/setSecBiasing eBrem world 100 100 MeV
+    /process/em/setSecBiasing eBrem world 100 100 MeV
+    /control/shell echo 'Bremsstrahlung splitting ON'
 
 # Set result filepaths
     /control/shell if [ ! -d {GLYPHS_BUILD_DIR} ]; then echo "** ERROR: Specified build directory {GLYPHS_BUILD_DIR} does not exist. Set the correct build directory in EDIT_THIS_FILE.mac"; killall GLYPHS; fi
