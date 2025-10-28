@@ -6,9 +6,9 @@ include("/Users/luna/Research/Aviation_Radiation/code/SpectrumParser.jl")
 results_dir = "/Users/luna/Research/geant4/Aviation_GLYPHS/results"
 beam_particles, beam_energies_keV = get_beams(results_dir)
 
-number_of_particles = 1_000_000  # Number of particles to input
+number_of_particles = 100_000  # Number of particles to input
 
-particle = "e-" # "e-" = electrons, "proton" = protons, "gamma" = photons
+particle = "proton" # "e-" = electrons, "proton" = protons, "gamma" = photons
 
 # Create energy and pitch angle lists
 #=
@@ -19,8 +19,7 @@ energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
 =#
 
-energies_to_simulate = [63.0, 98.0, 139.0, 183.0, 238.0, 305.0, 385.0, 520.0, 753.0, 1082.0, 1530.0, 2121.0, 2894.0, 3729.0, 4906.0, 6500.0, 10000.0, 50000.0]
-
+energies_to_simulate = [491997.0, 620256.0, 763219.0, 924633.0, 1.10431e6, 1.301975e6, 1.521936e6, 1.764077e6, 2.032968e6, 2.328549e6, 2.650702e6, 3.004142e6, 3.388794e6, 3.809462e6, 4.271004e6, 4.773387e6, 5.316554e6, 5.905391e6, 6.544812e6, 7.234781e6, 7.980228e6, 8.786098e6, 9.652364e6, 1.1097337e7, 1.3890407e7, 1.8783009e7, 2.7226294e7, 4.0071385e7, 5.816809e7, 8.3915825e7]
 
 # Create shell scripts
 rm.(glob("*keV.sh", @__DIR__))
@@ -36,7 +35,7 @@ for E in energies_to_simulate
 
 
   # Send long-runtime beams to blanca-lair
-  if E ≥ 50_000_000
+  if E ≥ 20_000_000
     qos = "blanca-lair"
     time_limit = "7-00:00:00"
   end

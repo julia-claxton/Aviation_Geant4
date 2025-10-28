@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name AG4_electron_753.0keV
+#SBATCH --job-name AG4_proton_3004142.0keV
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
 #SBATCH --time 1-00:00:00
-#SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_AG4_electron_753.0keV.out
+#SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_AG4_proton_3004142.0keV.out
 #SBATCH --qos=preemptable
 #SBATCH --exclude=bhpc-c5-u7-19,bhpc-c5-u7-22,bhpc-c5-u7-23
 #SBATCH --requeue
@@ -16,8 +16,8 @@ set -e
 
 # Run simulation
 cd /projects/jucl6426/Aviation_GLYPHS/build/
-./aviation_GLYPHS 1000000 e- 753.0
+./aviation_GLYPHS 1000000 proton 3004142.0
 
 # Copy results to safe folder
-cp /projects/jucl6426/Aviation_GLYPHS/build/results/mlat_45deg_input_450km/electron_input_753.0keV_1000000particles_*_spectra.csv /projects/jucl6426/Aviation_GLYPHS/results
+cp /projects/jucl6426/Aviation_GLYPHS/build/results/mlat_45deg_input_450km/proton_input_3004142.0keV_1000000particles_*_spectra.csv /projects/jucl6426/Aviation_GLYPHS/results
 
