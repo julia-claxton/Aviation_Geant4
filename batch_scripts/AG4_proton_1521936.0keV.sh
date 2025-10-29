@@ -16,8 +16,8 @@ set -e
 
 # Run simulation
 cd /projects/jucl6426/Aviation_GLYPHS/build/
-./aviation_GLYPHS 1000000 proton 1521936.0
+./aviation_GLYPHS 100000 proton 1521936.0
 
 # Copy results to safe folder
-cp /projects/jucl6426/Aviation_GLYPHS/build/results/mlat_45deg_input_450km/proton_input_1521936.0keV_1000000particles_*_spectra.csv /projects/jucl6426/Aviation_GLYPHS/results
+cp /projects/jucl6426/Aviation_GLYPHS/build/results/mlat_45deg_input_450km/proton_input_1521936.0keV_100000particles_*_spectra.csv /projects/jucl6426/Aviation_GLYPHS/results
 
