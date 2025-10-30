@@ -37,7 +37,7 @@ for E in energies_to_simulate
   # Send long-runtime beams to blanca-lair
   if E ≥ 20_000_000
     qos = "blanca-lair"
-    time_limit = "7-00:00:00"
+    time_limit = "2-00:00:00"
   end
   
   #=

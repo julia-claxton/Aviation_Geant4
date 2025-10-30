@@ -3,7 +3,7 @@
 #SBATCH --job-name AG4_proton_58168090.0keV
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 7-00:00:00
+#SBATCH --time 2-00:00:00
 #SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_AG4_proton_58168090.0keV.out
 #SBATCH --qos=blanca-lair
 #SBATCH --exclude=bhpc-c5-u7-19,bhpc-c5-u7-22,bhpc-c5-u7-23
