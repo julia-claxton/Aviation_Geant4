@@ -30,23 +30,23 @@ for E in energies_to_simulate
   input_particle_longname = particle == "e-" ? "electron" : particle
   energy_string = @sprintf "%.1f" E
   job_name = "AG4_$(input_particle_longname)_$(energy_string)keV"
-  qos = "preemptable"
-  time_limit = "1-00:00:00"
+  qos = "blanca-lair"
+  time_limit = "7-00:00:00"
 
 
   # Send long-runtime beams to blanca-lair
+  #=
   if E ≥ 20_000_000
     qos = "blanca-lair"
     time_limit = "2-00:00:00"
   end
-  
-  #=
+  =#
+
   # Don't simulate if we already have data for a given beam
   if E in beam_energies_keV
     global skipped += 1
     continue
   end
-  =#
 
   file = open("$(@__DIR__)/$(job_name).sh", "w")
   println(file,
