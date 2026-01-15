@@ -36,6 +36,9 @@
 # 10 = RungeKutta w/ PrinceDormand method, order 7-8
     /field/setStepperType 10
 
+# Dump particle list for debugging
+    #/run/particle/dumpList
+
 # Bremsstrahlung splitting
 # Syntax: /process/em/setSecBiasing processName Region factor energyLimit energyUnit
 # E.g.,

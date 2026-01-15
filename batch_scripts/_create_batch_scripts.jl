@@ -4,22 +4,11 @@ using Printf
 
 include("/Users/luna/Research/Aviation_Radiation/code/SpectrumParser.jl")
 results_dir = "/Users/luna/Research/geant4/Aviation_GLYPHS/results"
-beam_particles, beam_energies_keV = get_beams(results_dir)
+beam_particles, beam_energies_keV = get_beams(results_dir, input_particle = "alpha")
 
 number_of_particles = 100_000  # Number of particles to input
-
-particle = "proton" # "e-" = electrons, "proton" = protons, "gamma" = photons
-
-# Create energy and pitch angle lists
-#=
-energy_kev_min = 100_000       # Minimum beam energy, keV
-energy_kev_max = 100_000_000   # Maximum beam energy, keV
-energy_nbeams = 150            # Number of log-spaced beams to place between minimum and maximum energy
-energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
-energies_to_simulate = round.(energies_to_simulate, digits = 1)
-=#
-
-energies_to_simulate = [491997.0, 620256.0, 763219.0, 924633.0, 1.10431e6, 1.301975e6, 1.521936e6, 1.764077e6, 2.032968e6, 2.328549e6, 2.650702e6, 3.004142e6, 3.388794e6, 3.809462e6, 4.271004e6, 4.773387e6, 5.316554e6, 5.905391e6, 6.544812e6, 7.234781e6, 7.980228e6, 8.786098e6, 9.652364e6, 1.1097337e7, 1.3890407e7, 1.8783009e7, 2.7226294e7, 4.0071385e7, 5.816809e7, 8.3915825e7]
+particle = "alpha" # "e-" = electrons, "proton" = protons, "gamma" = photons
+energies_to_simulate = 1e6 .* [1.467029285016976, 1.7817875218749928, 2.1434580789902244, 2.5531026851640726, 3.0195499666152683, 3.5436236292778935, 4.125627948346392, 4.774463797977579, 5.490273042738451, 6.282166640382038, 7.159519110086783, 8.122386626142525, 9.170597549523674, 10.313477444726429, 11.560505948882511, 12.911525353931168, 14.376071249205166, 15.963767866189537, 17.674457592576562, 20.53486106783365, 26.080040217819565, 35.821267113820014, 52.667749722531134, 78.32854513709988, 114.50220914157535, 165.98409421382254]
 
 # Create shell scripts
 rm.(glob("*keV.sh", @__DIR__))
@@ -30,9 +19,8 @@ for E in energies_to_simulate
   input_particle_longname = particle == "e-" ? "electron" : particle
   energy_string = @sprintf "%.1f" E
   job_name = "AG4_$(input_particle_longname)_$(energy_string)keV"
-  qos = "blanca-lair"
-  time_limit = "7-00:00:00"
-
+  qos = "preemptable"
+  time_limit = "1-00:00:00"
 
   # Send long-runtime beams to blanca-lair
   #=
