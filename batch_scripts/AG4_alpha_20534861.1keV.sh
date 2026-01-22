@@ -3,9 +3,9 @@
 #SBATCH --job-name AG4_alpha_20534861.1keV
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 1-00:00:00
+#SBATCH --time 3-00:00:00
 #SBATCH --output /projects/jucl6426/Aviation_GLYPHS/results/log_AG4_alpha_20534861.1keV.out
-#SBATCH --qos=preemptable
+#SBATCH --qos=blanca-lair
 #SBATCH --exclude=bhpc-c5-u7-19,bhpc-c5-u7-22,bhpc-c5-u7-23
 #SBATCH --requeue
 #SBATCH --mail-type=ALL

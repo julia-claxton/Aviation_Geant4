@@ -14,6 +14,7 @@ energies_to_simulate = 1e6 .* [1.467029285016976, 1.7817875218749928, 2.14345807
 rm.(glob("*keV.sh", @__DIR__))
 written = 0
 skipped = 0
+lair = 0
 
 for E in energies_to_simulate
   input_particle_longname = particle == "e-" ? "electron" : particle
@@ -23,12 +24,11 @@ for E in energies_to_simulate
   time_limit = "1-00:00:00"
 
   # Send long-runtime beams to blanca-lair
-  #=
-  if E ≥ 20_000_000
+  if E ≥ 2e7
     qos = "blanca-lair"
-    time_limit = "2-00:00:00"
+    time_limit = "3-00:00:00"
+    global lair += 1
   end
-  =#
 
   # Don't simulate if we already have data for a given beam
   if E in beam_energies_keV
@@ -68,4 +68,6 @@ for E in energies_to_simulate
   global written += 1
 end
 
-println("Wrote $(written) files, skipped $(skipped) files.")
+println("$(written) files written.")
+println("$(skipped) files skipped.")
+println("$(lair) files sent to blanca-lair.")

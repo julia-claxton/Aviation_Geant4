@@ -88,10 +88,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
   // Isotropic downgoing incidence - choose point on downgoing unit hemisphere for momentum
-  //std::vector<G4double> momentum = randDowngoingDirection();
-  G4double vx0 = 0; //momentum.at(0);
-  G4double vy0 = 0; //momentum.at(1);
-  G4double vz0 = -1; //momentum.at(2);
+  std::vector<G4double> momentum = randDowngoingDirection();
+  G4double vx0 = momentum.at(0);
+  G4double vy0 = momentum.at(1);
+  G4double vz0 = momentum.at(2);
 
   // Get B vector to rotate velocity to be isotropic downgoing in pitch angle rather than in worldspace
   G4double spacetimePoint[4] = {r->xPos, r->xPos, r->zPos, 0};
@@ -115,7 +115,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   double dotProd = (r->xDir * B[0]) + (r->yDir * B[1]) + (r->zDir * B[2]);
   double generatedPitchAngle_deg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
 
-  if( generatedPitchAngle_deg > 1){
+  if( generatedPitchAngle_deg > 90){
     G4cout << "** ERROR: Primary generated with incorrect pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
     throw;
   }
