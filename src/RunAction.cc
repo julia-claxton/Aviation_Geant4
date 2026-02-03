@@ -51,7 +51,6 @@
 #include <fstream>
 #include <regex>
 #include <filesystem>
-#include "../include/csv.h" // For quickly parsing .csv files. Author credit in file.
 
 RunAction::RunAction():
   G4UserRunAction(),
@@ -214,7 +213,6 @@ void RunAction::EndOfRunAction(const G4Run*)
       + ".csv";
 
       // Get data from this thread
-      // csv.h seems to be hard to use when you have hundreds of columns so I have to resort to writing my own reader. Lays down face down on the floor.
       std::vector<std::vector<G4double>> threadData = readThreadFile(threadFilepath);
       
       // Add it to the result
