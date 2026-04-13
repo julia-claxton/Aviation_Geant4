@@ -75,10 +75,11 @@ RunAction::RunAction():
   }
   
   // Create histograms initialized to zero
-  protonCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  protonCounts.resize  (fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
   electronCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
-  gammaCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
-  alphaCounts.resize(fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  gammaCounts.resize   (fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  alphaCounts.resize   (fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
+  muonCounts.resize    (fNumberOfSamplePlanes, std::vector<G4double>(fNumberOfEnergyBins, 0));
   
   // Precalculate things
   histogramFactor = pow(10, (std::log10(fEnergyMaxkeV) - std::log10(fEnergyMinkeV)) / fNumberOfEnergyBins);
@@ -162,10 +163,10 @@ void RunAction::EndOfRunAction(const G4Run*)
   // If we are not the main thread, write energy deposition and backscatter to file and exit
   if(threadID != -1)
   {
-    std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha"};
-    std::vector<std::vector<std::vector<G4double>>> dataToWrite = {electronCounts, protonCounts, gammaCounts, alphaCounts};
+    std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha", "muon"};
+    std::vector<std::vector<std::vector<G4double>>> dataToWrite = {electronCounts, protonCounts, gammaCounts, alphaCounts, muonCounts};
 
-    for(int particleIndex = 0; particleIndex < 4; particleIndex++){
+    for(int particleIndex = 0; particleIndex < 5; particleIndex++){
       // Write energy deposition to file
       std::string filepath = 
         fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) 
@@ -194,8 +195,8 @@ void RunAction::EndOfRunAction(const G4Run*)
   G4cout << "Merging thread-specific data... ";
 
   // Loop over particle type
-  std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha"};
-  for(int particleIndex = 0; particleIndex < 4; particleIndex++){
+  std::string particlesToWrite[] = {"electron", "proton", "gamma", "alpha", "muon"};
+  for(int particleIndex = 0; particleIndex < 5; particleIndex++){
     // Create main filename
     std::string mainFilename = fEnergySpectraFileName.substr(0, fEnergySpectraFileName.length()-4) + "_" + particlesToWrite[particleIndex] + "_spectra.csv";
 

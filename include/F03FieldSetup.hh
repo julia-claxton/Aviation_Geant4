@@ -79,7 +79,7 @@ protected:
   G4FieldManager*         fFieldManager;
   G4ChordFinder*          fChordFinder;
   G4Mag_UsualEqRhs*       fEquation;
-  EarthDipoleField*       fMagneticField;
+  G4MagneticField*       fMagneticField;
 
   G4MagIntegratorStepper* fStepper;
   G4int                   fStepperType;

@@ -62,6 +62,10 @@
 #include "G4CashKarpRKF45.hh"
 #include "G4RKG3_Stepper.hh"
 #include "G4DormandPrince745.hh"
+#include "G4ExactHelixStepper.hh"
+#include "G4HelixHeum.hh"
+#include "G4HelixMixedStepper.hh"
+#include "G4NystromRK4.hh"
 
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
@@ -75,9 +79,14 @@ F03FieldSetup::F03FieldSetup()
    fStepper(0),
    fFieldMessenger(0)
 {
-  fMagneticField = new EarthDipoleField(); 
+  // Create non-cached field
+  G4MagneticField* nonCachedMagneticField = new EarthDipoleField(); 
   fFieldMessenger = new F03FieldMessenger(this);
-  fEquation = new G4Mag_UsualEqRhs(fMagneticField);
+  fEquation = new G4Mag_UsualEqRhs(nonCachedMagneticField);
+
+  // Create cached field
+  G4double cacheRadius = 0.1 * km;
+  fMagneticField = new G4CachedMagneticField(nonCachedMagneticField,  cacheRadius);
 
   // Default values
   fMinStep     = 0.01*km ; 

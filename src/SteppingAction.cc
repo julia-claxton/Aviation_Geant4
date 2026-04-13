@@ -138,6 +138,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     if(particleName == "proton"){fRunAction->protonCounts[altitudeIndex][energyIndex]   += 1 * trackWeight;}
     if(particleName == "gamma") {fRunAction->gammaCounts[altitudeIndex][energyIndex]    += 1 * trackWeight;}
     if(particleName == "alpha") {fRunAction->alphaCounts[altitudeIndex][energyIndex]    += 1 * trackWeight;}
+    if(particleName == "mu-")   {fRunAction->muonCounts[altitudeIndex][energyIndex]     += 1 * trackWeight;}
   }
 }
 

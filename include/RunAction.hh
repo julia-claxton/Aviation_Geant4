@@ -75,9 +75,9 @@ class RunAction : public G4UserRunAction
     static constexpr G4double fMaxSampleAltitude_km = 100.05;
     static constexpr G4int fNumberOfSamplePlanes = 1001; // Has very little impact on runtime due to regular spacing
 
-    static constexpr G4double fEnergyMinkeV = 1e-2; // Minimum energy in the simulation
-    static constexpr G4double fEnergyMaxkeV = 10e6; // 10 GeV, maximum energy for NIST proton stopping power tables
-    static constexpr G4int fNumberOfEnergyBins = 300; // Has very little impact on runtime due to regular spacing
+    static constexpr G4double fEnergyMinkeV = 1e-3; // Minimum energy in the simulation
+    static constexpr G4double fEnergyMaxkeV = 1e9; // 1 TeV
+    static constexpr G4int fNumberOfEnergyBins = 360; // Has very little impact on runtime due to regular spacing
 
     // Axis labels
     std::vector<G4double> sampleAltitudes_km;
@@ -88,6 +88,7 @@ class RunAction : public G4UserRunAction
     std::vector<std::vector<G4double>> electronCounts;
     std::vector<std::vector<G4double>> gammaCounts;
     std::vector<std::vector<G4double>> alphaCounts;
+    std::vector<std::vector<G4double>> muonCounts;
 
     // Precalculated for speed
     G4double histogramFactor; // Factor we multiply by for each successive energy histogram edge
